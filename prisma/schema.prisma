@@ -1,0 +1,91 @@
+// Prisma Schema for Password Administration System
+// Uses PostgreSQL with UUID primary keys and AES-256-GCM encrypted credential storage
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  VIEW_PASSWORD
+  CREATE_CREDENTIAL
+  UPDATE_CREDENTIAL
+  DELETE_CREDENTIAL
+  CREATE_USER
+  UPDATE_USER
+  DELETE_USER
+  CHANGE_PASSWORD
+  EXPORT_CREDENTIALS
+}
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  name         String   @db.VarChar(100)
+  role         Role     @default(VIEWER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+// ─── Credentials (The secrets being managed) ─────────────────────────────────
+
+model Credential {
+  id                String   @id @default(uuid()) @db.Uuid
+  title             String   @db.VarChar(100)
+  username          String   @db.VarChar(100)
+  encryptedPassword String   @map("encrypted_password") @db.Text
+  iv                String   @db.VarChar(100)
+  authTag           String   @map("auth_tag") @db.VarChar(100)
+  url               String?  @db.VarChar(500)
+  notes             String?  @db.Text
+  category          String?  @db.VarChar(50)
+  createdBy         String   @map("created_by") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  auditLogs AuditLog[]
+
+  @@map("credentials")
+}
+
+// ─── Audit Logs (Append-only, tamper-evident) ────────────────────────────────
+
+model AuditLog {
+  id        String      @id @default(uuid()) @db.Uuid
+  userId    String?     @map("user_id") @db.Uuid
+  user      User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    AuditAction
+  targetId  String?     @map("target_id") @db.Uuid
+  target    Credential? @relation(fields: [targetId], references: [id], onDelete: SetNull)
+  details   String?     @db.Text
+  ipAddress String?     @map("ip_address") @db.VarChar(45)
+  userAgent String?     @map("user_agent") @db.Text
+  timestamp DateTime    @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
