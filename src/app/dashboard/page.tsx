@@ -13,6 +13,7 @@ export default async function DashboardPage() {
     db.auditLog.findMany({
       take: 8,
       orderBy: { timestamp: "desc" },
+      where: session.role !== "SUPER_ADMIN" ? { userId: session.userId } : undefined,
       include: {
         user: { select: { email: true, name: true } },
         target: { select: { title: true } },
