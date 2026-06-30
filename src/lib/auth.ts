@@ -2,8 +2,8 @@ import "server-only";
 
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import { getSession, type SessionPayload } from "./session";
 import type { Role } from "@/generated/prisma/client";
+import { getSession, type SessionPayload } from "./session";
 
 const BCRYPT_COST_FACTOR = 12;
 
@@ -16,7 +16,7 @@ const BCRYPT_COST_FACTOR = 12;
  * - The cost factor can be increased as hardware improves
  */
 export async function hashPassword(password: string): Promise<string> {
-	return bcrypt.hash(password, BCRYPT_COST_FACTOR);
+  return bcrypt.hash(password, BCRYPT_COST_FACTOR);
 }
 
 /**
@@ -24,10 +24,10 @@ export async function hashPassword(password: string): Promise<string> {
  * Uses constant-time comparison to prevent timing attacks.
  */
 export async function verifyPassword(
-	password: string,
-	hash: string,
+  password: string,
+  hash: string,
 ): Promise<boolean> {
-	return bcrypt.compare(password, hash);
+  return bcrypt.compare(password, hash);
 }
 
 /**
@@ -35,13 +35,13 @@ export async function verifyPassword(
  * Use this in server components and server actions that require authentication.
  */
 export async function verifySession(): Promise<SessionPayload> {
-	const session = await getSession();
+  const session = await getSession();
 
-	if (!session) {
-		redirect("/login");
-	}
+  if (!session) {
+    redirect("/login");
+  }
 
-	return session;
+  return session;
 }
 
 /**
@@ -49,15 +49,15 @@ export async function verifySession(): Promise<SessionPayload> {
  * Throws an error if unauthorized (not a redirect — use in API routes and actions).
  */
 export async function requireRole(
-	allowedRoles: Role[],
+  allowedRoles: Role[],
 ): Promise<SessionPayload> {
-	const session = await verifySession();
+  const session = await verifySession();
 
-	if (!allowedRoles.includes(session.role)) {
-		throw new Error(
-			`Forbidden: role '${session.role}' is not authorized for this action.`,
-		);
-	}
+  if (!allowedRoles.includes(session.role)) {
+    throw new Error(
+      `Forbidden: role '${session.role}' is not authorized for this action.`,
+    );
+  }
 
-	return session;
+  return session;
 }

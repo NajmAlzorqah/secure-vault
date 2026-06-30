@@ -5,23 +5,23 @@ const IV_LENGTH = 12; // GCM standard: 12 bytes
 const KEY_LENGTH = 32; // 256 bits
 
 function getEncryptionKey(): Buffer {
-	const key = process.env.ENCRYPTION_KEY;
+  const key = process.env.ENCRYPTION_KEY;
 
-	if (!key) {
-		throw new Error(
-			"ENCRYPTION_KEY environment variable is not set. " +
-				'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
-		);
-	}
+  if (!key) {
+    throw new Error(
+      "ENCRYPTION_KEY environment variable is not set. " +
+        "Generate one with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+    );
+  }
 
-	if (key.length !== KEY_LENGTH * 2) {
-		throw new Error(
-			`ENCRYPTION_KEY must be exactly ${KEY_LENGTH * 2} hex characters (${KEY_LENGTH} bytes). ` +
-				`Got ${key.length} characters.`,
-		);
-	}
+  if (key.length !== KEY_LENGTH * 2) {
+    throw new Error(
+      `ENCRYPTION_KEY must be exactly ${KEY_LENGTH * 2} hex characters (${KEY_LENGTH} bytes). ` +
+        `Got ${key.length} characters.`,
+    );
+  }
 
-	return Buffer.from(key, "hex");
+  return Buffer.from(key, "hex");
 }
 
 /**
@@ -33,24 +33,24 @@ function getEncryptionKey(): Buffer {
  * - Unique IV per encryption prevents pattern analysis
  */
 export function encrypt(plaintext: string): {
-	encryptedData: string;
-	iv: string;
-	authTag: string;
+  encryptedData: string;
+  iv: string;
+  authTag: string;
 } {
-	const key = getEncryptionKey();
-	const iv = crypto.randomBytes(IV_LENGTH);
-	const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
+  const key = getEncryptionKey();
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
 
-	let encrypted = cipher.update(plaintext, "utf8", "hex");
-	encrypted += cipher.final("hex");
+  let encrypted = cipher.update(plaintext, "utf8", "hex");
+  encrypted += cipher.final("hex");
 
-	const authTag = cipher.getAuthTag().toString("hex");
+  const authTag = cipher.getAuthTag().toString("hex");
 
-	return {
-		encryptedData: encrypted,
-		iv: iv.toString("hex"),
-		authTag,
-	};
+  return {
+    encryptedData: encrypted,
+    iv: iv.toString("hex"),
+    authTag,
+  };
 }
 
 /**
@@ -61,19 +61,19 @@ export function encrypt(plaintext: string): {
  * - The IV or key is incorrect
  */
 export function decrypt(
-	encryptedData: string,
-	ivHex: string,
-	authTagHex: string,
+  encryptedData: string,
+  ivHex: string,
+  authTagHex: string,
 ): string {
-	const key = getEncryptionKey();
-	const iv = Buffer.from(ivHex, "hex");
-	const authTag = Buffer.from(authTagHex, "hex");
+  const key = getEncryptionKey();
+  const iv = Buffer.from(ivHex, "hex");
+  const authTag = Buffer.from(authTagHex, "hex");
 
-	const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-	decipher.setAuthTag(authTag);
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+  decipher.setAuthTag(authTag);
 
-	let decrypted = decipher.update(encryptedData, "hex", "utf8");
-	decrypted += decipher.final("utf8");
+  let decrypted = decipher.update(encryptedData, "hex", "utf8");
+  decrypted += decipher.final("utf8");
 
-	return decrypted;
+  return decrypted;
 }

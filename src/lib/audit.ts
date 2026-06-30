@@ -1,15 +1,15 @@
 import "server-only";
 
-import { db } from "./db";
 import type { AuditAction } from "@/generated/prisma/client";
+import { db } from "./db";
 
 interface AuditLogParams {
-	userId: string | null;
-	action: AuditAction;
-	targetId?: string | null;
-	details?: string | null;
-	ipAddress?: string | null;
-	userAgent?: string | null;
+  userId: string | null;
+  action: AuditAction;
+  targetId?: string | null;
+  details?: string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
 }
 
 /**
@@ -26,27 +26,27 @@ interface AuditLogParams {
  * - Administrative actions (export, password changes)
  */
 export async function logAudit({
-	userId,
-	action,
-	targetId,
-	details,
-	ipAddress,
-	userAgent,
+  userId,
+  action,
+  targetId,
+  details,
+  ipAddress,
+  userAgent,
 }: AuditLogParams): Promise<void> {
-	try {
-		await db.auditLog.create({
-			data: {
-				userId,
-				action,
-				targetId: targetId ?? null,
-				details: details ?? null,
-				ipAddress: ipAddress ?? null,
-				userAgent: userAgent ?? null,
-			},
-		});
-	} catch (error) {
-		// Audit logging should never crash the application.
-		// Log to stderr for monitoring, but don't throw.
-		console.error("[AUDIT ERROR] Failed to write audit log:", error);
-	}
+  try {
+    await db.auditLog.create({
+      data: {
+        userId,
+        action,
+        targetId: targetId ?? null,
+        details: details ?? null,
+        ipAddress: ipAddress ?? null,
+        userAgent: userAgent ?? null,
+      },
+    });
+  } catch (error) {
+    // Audit logging should never crash the application.
+    // Log to stderr for monitoring, but don't throw.
+    console.error("[AUDIT ERROR] Failed to write audit log:", error);
+  }
 }

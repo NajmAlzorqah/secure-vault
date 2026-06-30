@@ -1,6 +1,6 @@
 import path from "node:path";
-import { defineConfig } from "prisma/config";
 import dotenv from "dotenv";
+import { defineConfig } from "prisma/config";
 
 // Load environment variables from .env.local for local development
 dotenv.config({ path: path.join(__dirname, ".env.local") });
@@ -8,8 +8,8 @@ dotenv.config({ path: path.join(__dirname, ".env.local") });
 dotenv.config();
 
 export default defineConfig({
-	schema: path.join(__dirname, "prisma", "schema.prisma"),
-	datasource: {
-		url: process.env.DATABASE_URL!,
-	},
+  schema: path.join(__dirname, "prisma", "schema.prisma"),
+  datasource: {
+    url: process.env.DATABASE_URL!,
+  },
 });
