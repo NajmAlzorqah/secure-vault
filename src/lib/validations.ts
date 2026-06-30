@@ -181,3 +181,19 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+// ─── Shared ───────────────────────────────────────────────────────────────────
+
+export const idSchema = z.object({
+  id: z.string().uuid("Invalid ID format"),
+});
+
+export type IdInput = z.infer<typeof idSchema>;
+
+// ─── Reveal ───────────────────────────────────────────────────────────────────
+
+export const revealCredentialSchema = z.object({
+  credentialId: z.string().uuid("Invalid credential ID format"),
+});
+
+export type RevealCredentialInput = z.infer<typeof revealCredentialSchema>;

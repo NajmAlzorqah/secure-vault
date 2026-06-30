@@ -63,6 +63,7 @@ export async function login(
       passwordHash: true,
       role: true,
       name: true,
+      sessionVersion: true,
     },
   });
 
@@ -97,7 +98,7 @@ export async function login(
   }
 
   // Create session
-  await createSession(user.id, user.role);
+  await createSession(user.id, user.role, user.sessionVersion);
 
   // Audit log
   await logAudit({

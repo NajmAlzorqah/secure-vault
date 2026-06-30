@@ -14,6 +14,7 @@ import { deleteSession } from "@/lib/session";
 import {
   changePasswordSchema,
   createUserSchema,
+  idSchema,
   updateUserSchema,
 } from "@/lib/validations";
 
@@ -140,6 +141,11 @@ export async function deleteUser(id: string): Promise<UserState> {
   const session = await requireRole(["SUPER_ADMIN"]);
   const { ipAddress, userAgent } = await getClientInfo();
 
+  const parsed = idSchema.safeParse({ id });
+  if (!parsed.success) {
+    return { message: "Invalid user ID format." };
+  }
+
   // Prevent self-deletion
   if (id === session.userId) {
     return { message: "You cannot delete your own account." };
@@ -200,11 +206,14 @@ export async function changePassword(
     return { message: "Current password is incorrect." };
   }
 
-  // Update password
+  // Update password and invalidate all existing sessions
   const newHash = await hashPassword(newPassword);
   await db.user.update({
     where: { id: session.userId },
-    data: { passwordHash: newHash },
+    data: {
+      passwordHash: newHash,
+      sessionVersion: { increment: 1 },
+    },
   });
 
   await logAudit({

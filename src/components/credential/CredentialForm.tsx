@@ -10,15 +10,15 @@ import {
   updateCredential,
 } from "@/app/actions/credentials";
 import { Button } from "@/components/ui/button";
+import { PasswordRules } from "@/components/ui/PasswordRules";
 import {
-  createCredentialSchema,
-  updateCredentialSchema,
   type CreateCredentialInput,
+  createCredentialSchema,
   type UpdateCredentialInput,
+  updateCredentialSchema,
 } from "@/lib/validations";
 import { PasswordGenerator } from "./PasswordGenerator";
 import { PasswordStrength } from "./PasswordStrength";
-import { PasswordRules } from "@/components/ui/PasswordRules";
 
 interface CredentialFormProps {
   mode: "create" | "edit";

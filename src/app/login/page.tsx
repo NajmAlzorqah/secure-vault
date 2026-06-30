@@ -5,8 +5,8 @@ import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { type AuthState, login } from "@/app/actions/auth";
-import { type LoginInput, loginSchema } from "@/lib/validations";
 import { PasswordRules } from "@/components/ui/PasswordRules";
+import { type LoginInput, loginSchema } from "@/lib/validations";
 
 export default function LoginPage() {
   const [serverState, setServerState] = useState<AuthState | undefined>(

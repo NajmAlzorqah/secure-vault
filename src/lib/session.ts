@@ -3,10 +3,12 @@ import "server-only";
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import type { Role } from "@/generated/prisma/client";
+import { db } from "./db";
 
 export interface SessionPayload {
   userId: string;
   role: Role;
+  sessionVersion: number;
   expiresAt: Date;
 }
 
@@ -29,12 +31,17 @@ function getSecretKey(): Uint8Array {
  * - Secure: only sent over HTTPS (disabled in dev)
  * - SameSite=Lax: prevents CSRF on cross-origin requests
  */
-export async function createSession(userId: string, role: Role): Promise<void> {
+export async function createSession(
+  userId: string,
+  role: Role,
+  sessionVersion: number,
+): Promise<void> {
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
 
   const token = await new SignJWT({
     userId,
     role,
+    sessionVersion,
     expiresAt: expiresAt.toISOString(),
   })
     .setProtectedHeader({ alg: "HS256" })
@@ -54,7 +61,8 @@ export async function createSession(userId: string, role: Role): Promise<void> {
 
 /**
  * Reads and verifies the JWT session from the cookie.
- * Returns null if no session exists or verification fails.
+ * Returns null if no session exists, verification fails,
+ * or the session version doesn't match (user changed password on another device).
  */
 export async function getSession(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
@@ -69,9 +77,27 @@ export async function getSession(): Promise<SessionPayload | null> {
       algorithms: ["HS256"],
     });
 
+    // sessionVersion may be undefined in JWTs created before the versioning feature
+    // was introduced. Treat missing version as 0 (the database default) for
+    // backward compatibility.
+    const sessionVersion = (payload.sessionVersion as number | undefined) ?? 0;
+    const userId = payload.userId as string;
+
+    // Verify session version against the database — invalidates sessions
+    // after password changes across all devices
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { sessionVersion: true },
+    });
+
+    if (!user || user.sessionVersion !== sessionVersion) {
+      return null;
+    }
+
     return {
-      userId: payload.userId as string,
+      userId,
       role: payload.role as Role,
+      sessionVersion,
       expiresAt: new Date(payload.expiresAt as string),
     };
   } catch {

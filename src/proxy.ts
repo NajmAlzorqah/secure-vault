@@ -40,7 +40,6 @@ export async function proxy(request: NextRequest) {
         role: payload.role as string,
       };
     } catch {
-      // Invalid or expired token — treat as unauthenticated
       session = null;
     }
   }

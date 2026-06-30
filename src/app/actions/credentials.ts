@@ -8,6 +8,7 @@ import { encrypt } from "@/lib/crypto";
 import { db } from "@/lib/db";
 import {
   createCredentialSchema,
+  idSchema,
   updateCredentialSchema,
 } from "@/lib/validations";
 
@@ -156,6 +157,11 @@ export async function updateCredential(
 export async function deleteCredential(id: string): Promise<CredentialState> {
   const session = await requireRole(["SUPER_ADMIN", "EDITOR"]);
   const { ipAddress, userAgent } = await getClientInfo();
+
+  const parsed = idSchema.safeParse({ id });
+  if (!parsed.success) {
+    return { message: "Invalid credential ID format." };
+  }
 
   const credential = await db.credential.findUnique({ where: { id } });
   if (!credential) {

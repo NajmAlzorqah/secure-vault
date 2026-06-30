@@ -4,12 +4,30 @@ import { decrypt } from "@/lib/crypto";
 import { db } from "@/lib/db";
 import { checkRateLimit, REVEAL_RATE_LIMIT } from "@/lib/rate-limit";
 import { getSession } from "@/lib/session";
+import { revealCredentialSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
   // Verify authentication
   const session = await getSession();
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // CSRF protection: validate origin/referer header
+  const csrfHeaders = await headers();
+  const origin = csrfHeaders.get("origin");
+  const referer = csrfHeaders.get("referer");
+  const host = csrfHeaders.get("host");
+  const allowedOrigin = origin ?? referer;
+  if (allowedOrigin) {
+    try {
+      const url = new URL(allowedOrigin);
+      if (url.host !== host) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
+      }
+    } catch {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   // Rate limit by user ID
@@ -27,7 +45,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // Parse request body
+  // Parse and validate request body with Zod
   let body: { credentialId: string };
   try {
     body = await request.json();
@@ -35,16 +53,17 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  if (!body.credentialId) {
+  const parsed = revealCredentialSchema.safeParse(body);
+  if (!parsed.success) {
     return Response.json(
-      { error: "credentialId is required" },
+      { error: "Invalid credential ID format." },
       { status: 400 },
     );
   }
 
   // Fetch the credential
   const credential = await db.credential.findUnique({
-    where: { id: body.credentialId },
+    where: { id: parsed.data.credentialId },
     select: {
       id: true,
       title: true,
