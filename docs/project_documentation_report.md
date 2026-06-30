@@ -12,7 +12,7 @@ The system provides a centralized platform for creating, reading, updating, and 
 1. **Authenticated Symmetric Cryptography** for data at rest.
 2. **Stateless JWT-based session management** via secure, HTTP-only cookies.
 3. **Role-Based Access Control (RBAC)** defining strict privilege levels.
-4. **Append-Only Immutable Auditing** for tracing administrative activity.
+4. **Database-Enforced Immutable Auditing** preventing updates, deletes, and unauthorized insertions via database triggers.
 5. **Defensive security mitigations** including sliding window rate limiting, Content Security Policy (CSP) configurations, clipboard auto-clearing, and request source verification.
 
 By keeping sensitive operations on the server side and enforcing modern web security standards, SecureVault minimizes the attack surface and ensures a tamper-evident audit trail for organizational compliance.
@@ -45,7 +45,7 @@ The scope of this implementation includes:
 2. **Vault Management (Credentials CRUD):** Interfaces for managing credentials with categories/tags, URL mappings, and notes.
 3. **User Account Management (CRUD):** Restricted exclusively to `SUPER_ADMIN` to manage user emails, names, passwords, and system roles.
 4. **On-Demand Decryption API:** A secure `/api/credentials/reveal` endpoint that decrypts specific passwords only when requested by authenticated, rate-limited users.
-5. **Tamper-Evident Security Log Trail:** A read-only log table tracing timestamps, acting users, event types, IP addresses, and browsers (user-agents) for every administrative transaction.
+5. **Tamper-Evident Security Log Trail:** A log table tracing transaction metrics, secured via database triggers so that records are read-only for outside connections (Prisma Studio, SQL consoles) and strictly append-only for the system application.
 6. **Encrypted Backup Export:** An export utility allowing `SUPER_ADMIN` to download raw database copies containing encrypted ciphertexts, preserving the key separation architecture.
 7. **Client-Side Security Components:** Password strength indicators (using `zxcvbn`), secure random password generators, 10-second reveal timeouts, and 30-second automatic clipboard clearing.
 
@@ -331,7 +331,12 @@ SecureVault translates these design parameters into distinct implementation modu
 
 ### E. Append-Only Security Audit Logging
 * **Path:** [src/lib/audit.ts](file:///home/najm/code/administration-system-for-managing-passwords/src/lib/audit.ts)
-* **Immutable Actions:** The application logic contains only `db.auditLog.create()` calls. There are no export bindings, schemas, server actions, or controller layers containing update/delete routes for audit records, preventing administrators from modifying their own audit trails.
+* **Database-Level Immutability Triggers:** Implements absolute audit log protection directly at the database engine level (PostgreSQL) using custom DDL triggers, managed via [setup-triggers.ts](file:///home/najm/code/administration-system-for-managing-passwords/prisma/setup-triggers.ts).
+  - **Modification Block:** A `BEFORE UPDATE OR DELETE` trigger (`trg_block_audit_log_modification`) unconditionally throws a database exception for any update or delete statement targeting the `audit_logs` table, preventing even superusers or the application itself from modifying existing logs.
+  - **Insert Restriction:** A `BEFORE INSERT` trigger (`trg_block_audit_log_insert`) checks the PostgreSQL `application_name` of the current connection. It throws an exception unless `application_name` is exactly `'vault_app'`.
+  - **Outside Access Restriction:** Any external tool, direct SQL command, or Prisma Studio session (running with default connection settings) cannot create or alter audit logs. They are restricted strictly to read-only (`SELECT`) access.
+* **System Connection Configuration:**
+  - Next.js database pool connections in [db.ts](file:///home/najm/code/administration-system-for-managing-passwords/src/lib/db.ts) and database seeding connections in [seed.ts](file:///home/najm/code/administration-system-for-managing-passwords/prisma/seed.ts) are programmatically configured to append `application_name=vault_app` to the connection string to satisfy the database-level validation check during legitimate logging.
 * **Fault Tolerance:** If audit log writing fails, the error is piped to `console.error` (stderr), but the main operation proceeds. This ensures that database lockouts on the log table do not brick the authentication or reveal functions.
 
 ### F. Client Security Controls

@@ -9,7 +9,15 @@ import bcrypt from "bcrypt";
 import { Pool } from "pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const originalUrl = process.env.DATABASE_URL;
+let connectionString = originalUrl;
+if (originalUrl) {
+  const url = new URL(originalUrl);
+  url.searchParams.set("application_name", "vault_app");
+  connectionString = url.toString();
+}
+
+const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
