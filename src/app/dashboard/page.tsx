@@ -41,6 +41,8 @@ export default async function DashboardPage() {
     DELETE_USER: "text-red-400",
     CHANGE_PASSWORD: "text-amber-400",
     EXPORT_CREDENTIALS: "text-blue-400",
+    PASSWORD_RESET_REQUEST: "text-amber-400",
+    PASSWORD_RESET_COMPLETE: "text-emerald-400",
   };
 
   return (

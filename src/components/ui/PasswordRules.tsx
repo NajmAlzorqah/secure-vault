@@ -3,52 +3,114 @@
 import { Check, X } from "lucide-react";
 import { useMemo } from "react";
 
-export type RuleId = "length" | "letter" | "number" | "special" | "required";
+export type RuleId =
+  | "length"
+  | "letter"
+  | "number"
+  | "special"
+  | "required"
+  | "uppercase"
+  | "lowercase";
 
 interface PasswordRulesProps {
   password?: string;
   showAlways?: boolean;
   enabledRules?: RuleId[];
+  settings?: {
+    minimumPasswordLength: number;
+    requireUppercase: boolean;
+    requireLowercase: boolean;
+    requireNumber: boolean;
+    requireSpecialChar: boolean;
+  } | null;
 }
-
-const defaultRules: RuleId[] = ["length", "letter", "number", "special"];
 
 export function PasswordRules({
   password = "",
   showAlways = false,
-  enabledRules = defaultRules,
+  enabledRules,
+  settings,
 }: PasswordRulesProps) {
   const rules = useMemo(() => {
+    // If settings are provided, build rules dynamically
+    if (settings) {
+      const allRules = [
+        {
+          id: "length" as RuleId,
+          label: `At least ${settings.minimumPasswordLength} characters`,
+          test: (p: string) => p.length >= settings.minimumPasswordLength,
+        },
+      ];
+
+      if (settings.requireUppercase) {
+        allRules.push({
+          id: "uppercase" as RuleId,
+          label: "At least one uppercase letter",
+          test: (p: string) => /[A-Z]/.test(p),
+        });
+      }
+      if (settings.requireLowercase) {
+        allRules.push({
+          id: "lowercase" as RuleId,
+          label: "At least one lowercase letter",
+          test: (p: string) => /[a-z]/.test(p),
+        });
+      }
+      if (settings.requireNumber) {
+        allRules.push({
+          id: "number" as RuleId,
+          label: "At least one number",
+          test: (p: string) => /[0-9]/.test(p),
+        });
+      }
+      if (settings.requireSpecialChar) {
+        allRules.push({
+          id: "special" as RuleId,
+          label: "At least one special character",
+          test: (p: string) => /[^a-zA-Z0-9]/.test(p),
+        });
+      }
+
+      return allRules.map((rule) => ({
+        ...rule,
+        met: rule.test(password),
+      }));
+    }
+
+    // Fallback to static rules when no settings provided
+    const defaultEnabled: RuleId[] = ["length", "letter", "number", "special"];
+    const activeRules = enabledRules ?? defaultEnabled;
+
     const allRules = [
       {
-        id: "required",
+        id: "required" as RuleId,
         label: "Password is required",
         met: password.length >= 1,
       },
       {
-        id: "length",
-        label: "At least 8 characters",
-        met: password.length >= 8,
+        id: "length" as RuleId,
+        label: "At least 12 characters",
+        met: password.length >= 12,
       },
       {
-        id: "letter",
+        id: "letter" as RuleId,
         label: "At least one letter",
         met: /[a-zA-Z]/.test(password),
       },
       {
-        id: "number",
+        id: "number" as RuleId,
         label: "At least one number",
         met: /[0-9]/.test(password),
       },
       {
-        id: "special",
+        id: "special" as RuleId,
         label: "At least one special character",
         met: /[^a-zA-Z0-9]/.test(password),
       },
     ];
 
-    return allRules.filter((rule) => enabledRules.includes(rule.id as RuleId));
-  }, [password, enabledRules]);
+    return allRules.filter((rule) => activeRules.includes(rule.id));
+  }, [password, enabledRules, settings]);
 
   const hasStartedTyping = password.length > 0;
 

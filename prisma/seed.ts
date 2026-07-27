@@ -51,6 +51,37 @@ async function main() {
   console.log(`   Role:  ${user.role}`);
   console.log(`   ID:    ${user.id}`);
 
+  // Upsert security settings with defaults
+  const existingSettings = await prisma.securitySettings.findFirst();
+  if (!existingSettings) {
+    await prisma.securitySettings.create({
+      data: {
+        minimumPasswordLength: 12,
+        passwordHistory: 5,
+        lockDuration: 15,
+        expirationDays: 90,
+        mfaRequired: false,
+        maxFailedAttempts: 5,
+        requireSpecialChar: true,
+        requireUppercase: true,
+        requireNumber: true,
+        requireLowercase: true,
+      },
+    });
+    console.log("✅ Security settings created with defaults.");
+  } else {
+    console.log("ℹ️  Security settings already exist, skipping.");
+  }
+
+  // Record the current password in history so it can't be reused
+  await prisma.passwordHistory.create({
+    data: {
+      userId: user.id,
+      passwordHash,
+    },
+  });
+  console.log("✅ Initial password history recorded for admin.");
+
   // Create some sample credentials for demonstration
   const { encrypt } = await import("../src/lib/crypto");
 

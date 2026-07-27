@@ -10,12 +10,17 @@ import {
   verifySession,
 } from "@/lib/auth";
 import { db } from "@/lib/db";
+import {
+  isPasswordReused,
+  recordPasswordHistory,
+} from "@/lib/password-history";
+import { getSecuritySettings } from "@/lib/security-settings";
 import { deleteSession } from "@/lib/session";
 import {
-  changePasswordSchema,
-  createUserSchema,
+  getChangePasswordSchema,
+  getCreateUserSchema,
+  getUpdateUserSchema,
   idSchema,
-  updateUserSchema,
 } from "@/lib/validations";
 
 export interface UserState {
@@ -24,7 +29,7 @@ export interface UserState {
   success?: boolean;
 }
 
-async function getClientInfo() {
+export async function getClientInfo() {
   const headersList = await headers();
   const ipAddress =
     headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -35,12 +40,14 @@ async function getClientInfo() {
 }
 
 export async function createUser(
-  prevState: UserState | undefined,
+  _prevState: UserState | undefined,
   formData: FormData,
 ): Promise<UserState> {
   const session = await requireRole(["SUPER_ADMIN"]);
   const { ipAddress, userAgent } = await getClientInfo();
+  const settings = await getSecuritySettings();
 
+  const createUserSchema = getCreateUserSchema(settings);
   const parsed = createUserSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -63,8 +70,17 @@ export async function createUser(
   const passwordHash = await hashPassword(password);
 
   const user = await db.user.create({
-    data: { name, email, passwordHash, role },
+    data: {
+      name,
+      email,
+      passwordHash,
+      role,
+      passwordChangedAt: new Date(),
+    },
   });
+
+  // Record initial password in history
+  await recordPasswordHistory(user.id, passwordHash, settings);
 
   await logAudit({
     userId: session.userId,
@@ -81,25 +97,28 @@ export async function createUser(
 }
 
 export async function updateUser(
-  prevState: UserState | undefined,
+  _prevState: UserState | undefined,
   formData: FormData,
 ): Promise<UserState> {
   const session = await requireRole(["SUPER_ADMIN"]);
   const { ipAddress, userAgent } = await getClientInfo();
+  const settings = await getSecuritySettings();
 
+  const updateUserSchema = getUpdateUserSchema(settings);
   const parsed = updateUserSchema.safeParse({
     id: formData.get("id"),
     name: formData.get("name"),
     email: formData.get("email"),
     role: formData.get("role"),
-    password: formData.get("password"),
+    password: formData.get("password") ?? "",
+    forcePasswordChange: formData.get("forcePasswordChange") === "on",
   });
 
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
-  const { id, name, email, role, password } = parsed.data;
+  const { id, name, email, role, password, forcePasswordChange } = parsed.data;
 
   const existing = await db.user.findUnique({ where: { id } });
   if (!existing) {
@@ -118,11 +137,29 @@ export async function updateUser(
   if (name) updateData.name = name;
   if (email) updateData.email = email;
   if (role) updateData.role = role;
-  if (password && password.length > 0) {
-    updateData.passwordHash = await hashPassword(password);
+
+  if (forcePasswordChange !== undefined) {
+    updateData.forcePasswordChange = forcePasswordChange;
   }
 
-  await db.user.update({ where: { id }, data: updateData });
+  if (password && password.length > 0) {
+    // Check password history for the target user
+    const historyCheck = await isPasswordReused(id, password, settings);
+    if (historyCheck.reused) {
+      return { message: historyCheck.message };
+    }
+
+    const newHash = await hashPassword(password);
+    updateData.passwordHash = newHash;
+    updateData.passwordChangedAt = new Date();
+
+    await db.user.update({ where: { id }, data: updateData });
+
+    // Record in history after successful update
+    await recordPasswordHistory(id, newHash, settings);
+  } else {
+    await db.user.update({ where: { id }, data: updateData });
+  }
 
   await logAudit({
     userId: session.userId,
@@ -173,12 +210,14 @@ export async function deleteUser(id: string): Promise<UserState> {
 }
 
 export async function changePassword(
-  prevState: UserState | undefined,
+  _prevState: UserState | undefined,
   formData: FormData,
 ): Promise<UserState> {
   const session = await verifySession();
   const { ipAddress, userAgent } = await getClientInfo();
+  const settings = await getSecuritySettings();
 
+  const changePasswordSchema = getChangePasswordSchema(settings);
   const parsed = changePasswordSchema.safeParse({
     currentPassword: formData.get("currentPassword"),
     newPassword: formData.get("newPassword"),
@@ -206,6 +245,16 @@ export async function changePassword(
     return { message: "Current password is incorrect." };
   }
 
+  // Check password history
+  const historyCheck = await isPasswordReused(
+    session.userId,
+    newPassword,
+    settings,
+  );
+  if (historyCheck.reused) {
+    return { message: historyCheck.message };
+  }
+
   // Update password and invalidate all existing sessions
   const newHash = await hashPassword(newPassword);
   await db.user.update({
@@ -213,8 +262,13 @@ export async function changePassword(
     data: {
       passwordHash: newHash,
       sessionVersion: { increment: 1 },
+      passwordChangedAt: new Date(),
+      forcePasswordChange: false,
     },
   });
+
+  // Record in history
+  await recordPasswordHistory(session.userId, newHash, settings);
 
   await logAudit({
     userId: session.userId,
@@ -228,4 +282,78 @@ export async function changePassword(
   await deleteSession();
 
   return { success: true, message: "Password changed. Please log in again." };
+}
+
+/**
+ * Forces a password change (e.g. expired password or admin-forced).
+ * Does NOT require current password and does NOT delete the session.
+ * Used by the mandatory password change dialog on login.
+ */
+export async function forceChangePassword(
+  _prevState: UserState | undefined,
+  formData: FormData,
+): Promise<UserState> {
+  const session = await verifySession();
+  const { ipAddress, userAgent } = await getClientInfo();
+  const settings = await getSecuritySettings();
+
+  const schema = getChangePasswordSchema(settings);
+  const parsed = schema.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const { currentPassword, newPassword } = parsed.data;
+
+  const user = await db.user.findUnique({
+    where: { id: session.userId },
+    select: { passwordHash: true, email: true },
+  });
+
+  if (!user) {
+    return { message: "User not found." };
+  }
+
+  const isValid = await verifyPassword(currentPassword, user.passwordHash);
+  if (!isValid) {
+    return { message: "Current password is incorrect." };
+  }
+
+  const historyCheck = await isPasswordReused(
+    session.userId,
+    newPassword,
+    settings,
+  );
+  if (historyCheck.reused) {
+    return { message: historyCheck.message };
+  }
+
+  const newHash = await hashPassword(newPassword);
+  await db.user.update({
+    where: { id: session.userId },
+    data: {
+      passwordHash: newHash,
+      passwordChangedAt: new Date(),
+      forcePasswordChange: false,
+    },
+  });
+
+  await recordPasswordHistory(session.userId, newHash, settings);
+
+  await logAudit({
+    userId: session.userId,
+    action: "CHANGE_PASSWORD",
+    details: "Password changed (forced)",
+    ipAddress,
+    userAgent,
+  });
+
+  revalidatePath("/dashboard");
+
+  return { success: true, message: "Password changed successfully." };
 }

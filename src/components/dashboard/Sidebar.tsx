@@ -5,8 +5,10 @@ import {
   ChevronRight,
   ClipboardList,
   KeyRound,
+  Lock,
   Settings,
   Shield,
+  ShieldCheck,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +18,7 @@ import type { Role } from "@/generated/prisma/client";
 
 interface SidebarProps {
   role: Role;
+  forcePasswordChange?: boolean;
 }
 
 const navItems = [
@@ -41,6 +44,13 @@ const navItems = [
     roles: ["SUPER_ADMIN"] as Role[],
   },
   {
+    href: "/dashboard/security",
+    label: "Security",
+    icon: ShieldCheck,
+    exact: false,
+    roles: ["SUPER_ADMIN"] as Role[],
+  },
+  {
     href: "/dashboard/audit",
     label: "Audit Logs",
     icon: ClipboardList,
@@ -56,7 +66,7 @@ const navItems = [
   },
 ];
 
-export function Sidebar({ role }: SidebarProps) {
+export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -77,6 +87,7 @@ export function Sidebar({ role }: SidebarProps) {
           )}
         </div>
         <button
+          type="button"
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-center justify-center w-6 h-6 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white cursor-pointer transition-all"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -88,6 +99,18 @@ export function Sidebar({ role }: SidebarProps) {
           )}
         </button>
       </div>
+
+      {/* Force password change notice */}
+      {forcePasswordChange && !collapsed && (
+        <div className="mx-3 mt-3 p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Lock className="h-4 w-4 text-amber-400 shrink-0" />
+            <p className="text-[10px] text-amber-300 font-medium leading-tight">
+              Password change required
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 py-4 px-3 flex flex-col gap-1 overflow-y-auto">

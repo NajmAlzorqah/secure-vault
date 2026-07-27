@@ -46,6 +46,7 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
       email: user?.email || "",
       role: user?.role || "VIEWER",
       password: "",
+      forcePasswordChange: false,
     },
     mode: "onTouched",
   });
@@ -67,6 +68,9 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
       formData.append("role", data.role);
       if (data.password) {
         formData.append("password", data.password);
+      }
+      if (mode === "edit" && data.forcePasswordChange) {
+        formData.append("forcePasswordChange", "on");
       }
 
       const result = await action(undefined, formData);
@@ -257,6 +261,24 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               showAlways={mode === "create"}
             />
           </div>
+
+          {/* Force Password Change (edit mode only) */}
+          {mode === "edit" && (
+            <div className="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg">
+              <input
+                id="forcePasswordChange"
+                type="checkbox"
+                className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-emerald-500 focus:ring-emerald-500/20 cursor-pointer"
+                {...register("forcePasswordChange")}
+              />
+              <label
+                htmlFor="forcePasswordChange"
+                className="text-xs text-zinc-300 cursor-pointer select-none"
+              >
+                Force password change on next login
+              </label>
+            </div>
+          )}
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button

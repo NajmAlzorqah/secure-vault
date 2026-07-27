@@ -31,21 +31,29 @@ enum AuditAction {
   DELETE_USER
   CHANGE_PASSWORD
   EXPORT_CREDENTIALS
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_COMPLETE
 }
 
 // ─── Users ───────────────────────────────────────────────────────────────────
 
 model User {
-  id              String   @id @default(uuid()) @db.Uuid
-  email           String   @unique @db.VarChar(255)
-  passwordHash    String   @map("password_hash") @db.VarChar(255)
-  name            String   @db.VarChar(100)
-  role            Role     @default(VIEWER)
-  sessionVersion  Int      @default(0) @map("session_version")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id                  String    @id @default(uuid()) @db.Uuid
+  email               String    @unique @db.VarChar(255)
+  passwordHash        String    @map("password_hash") @db.VarChar(255)
+  name                String    @db.VarChar(100)
+  role                Role      @default(VIEWER)
+  sessionVersion      Int       @default(0) @map("session_version")
+  passwordChangedAt   DateTime? @map("password_changed_at")
+  forcePasswordChange Boolean   @default(false) @map("force_password_change")
+  lockedUntil         DateTime? @map("locked_until")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
-  auditLogs AuditLog[]
+  auditLogs           AuditLog[]
+  passwordHistory     PasswordHistory[]
+  failedLoginAttempts FailedLoginAttempt[]
+  resetTokens         PasswordResetToken[]
 
   @@map("users")
 }
@@ -89,4 +97,69 @@ model AuditLog {
   @@index([action])
   @@index([timestamp])
   @@map("audit_logs")
+}
+
+// ─── Security Settings (Singleton config row) ────────────────────────────────
+
+model SecuritySettings {
+  id                    String   @id @default(uuid()) @db.Uuid
+  minimumPasswordLength Int      @default(12) @map("minimum_password_length")
+  passwordHistory       Int      @default(5) @map("password_history")
+  lockDuration          Int      @default(15) @map("lock_duration_minutes")
+  expirationDays        Int      @default(90) @map("expiration_days")
+  mfaRequired           Boolean  @default(false) @map("mfa_required")
+  maxFailedAttempts     Int      @default(5) @map("max_failed_attempts")
+  requireSpecialChar    Boolean  @default(true) @map("require_special_char")
+  requireUppercase      Boolean  @default(true) @map("require_uppercase")
+  requireNumber         Boolean  @default(true) @map("require_number")
+  requireLowercase      Boolean  @default(true) @map("require_lowercase")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("security_settings")
+}
+
+// ─── Password History ────────────────────────────────────────────────────────
+
+model PasswordHistory {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("password_history")
+}
+
+// ─── Failed Login Attempts ───────────────────────────────────────────────────
+
+model FailedLoginAttempt {
+  id          String   @id @default(uuid()) @db.Uuid
+  email       String   @db.VarChar(255)
+  userId      String?  @map("user_id") @db.Uuid
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress   String   @map("ip_address") @db.VarChar(45)
+  userAgent   String?  @map("user_agent") @db.Text
+  attemptedAt DateTime @default(now()) @map("attempted_at")
+
+  @@index([email, attemptedAt(sort: Desc)])
+  @@index([userId])
+  @@map("failed_login_attempts")
+}
+
+// ─── Password Reset Tokens ───────────────────────────────────────────────────
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique @db.VarChar(255)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
 }

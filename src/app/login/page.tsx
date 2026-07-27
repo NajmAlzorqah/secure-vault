@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { type AuthState, login } from "@/app/actions/auth";
@@ -160,9 +161,18 @@ export default function LoginPage() {
               )}
               <PasswordRules
                 password={passwordValue}
-                enabledRules={["length"]}
                 showAlways={true}
               />
+            </div>
+
+            {/* Forgot password link */}
+            <div className="text-right">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+              >
+                Forgot your password?
+              </Link>
             </div>
 
             <button

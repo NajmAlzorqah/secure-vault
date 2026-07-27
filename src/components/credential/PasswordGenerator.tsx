@@ -99,7 +99,7 @@ export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
           </div>
           <input
             type="range"
-            min={8}
+            min={12}
             max={128}
             value={length}
             onChange={(e) => setLength(Number(e.target.value))}

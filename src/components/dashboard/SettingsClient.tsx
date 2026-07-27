@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Clock,
   Download,
   Eye,
   EyeOff,
@@ -9,6 +10,7 @@ import {
   Loader2,
   ShieldCheck,
 } from "lucide-react";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { changePassword, type UserState } from "@/app/actions/users";
@@ -23,6 +25,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import type { Role } from "@/generated/prisma/client";
+import type { PasswordAgeInfo } from "@/lib/password-expiry";
+import { formatPasswordAge } from "@/lib/password-expiry";
 import {
   type ChangePasswordInput,
   changePasswordSchema,
@@ -33,7 +37,11 @@ interface SettingsClientProps {
     name: string;
     email: string;
     role: Role;
+    passwordChangedAt: Date | null;
+    forcePasswordChange: boolean;
   };
+  passwordAgeInfo: PasswordAgeInfo;
+  forceChange?: boolean;
 }
 
 const roleLabels: Record<Role, string> = {
@@ -42,7 +50,11 @@ const roleLabels: Record<Role, string> = {
   VIEWER: "Viewer (Secret Reader Only)",
 };
 
-export function SettingsClient({ user }: SettingsClientProps) {
+export function SettingsClient({
+  user,
+  passwordAgeInfo,
+  forceChange = false,
+}: SettingsClientProps) {
   const [serverState, setServerState] = useState<UserState | undefined>(
     undefined,
   );
@@ -112,6 +124,37 @@ export function SettingsClient({ user }: SettingsClientProps) {
         </p>
       </div>
 
+      {/* Force password change banner */}
+      {forceChange && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
+          <div className="text-amber-400 mt-0.5">
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-amber-400">
+              Password Change Required
+            </h3>
+            <p className="text-xs text-amber-200/70 mt-1">
+              {passwordAgeInfo.isExpired
+                ? "Your password has expired. You must change it to continue."
+                : "An administrator has required you to change your password."}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-6 md:grid-cols-2">
         {/* Profile Info */}
         <div className="space-y-6">
@@ -147,6 +190,60 @@ export function SettingsClient({ user }: SettingsClientProps) {
                 <p className="text-sm text-gray-300">
                   24 Hours (HttpOnly, SameSite=Strict)
                 </p>
+              </div>
+
+              {/* Password Age */}
+              <div className="pt-2 border-t border-zinc-800/50">
+                <div className="flex items-center gap-2 mb-1">
+                  <Clock className="h-3.5 w-3.5 text-zinc-400" />
+                  <p className="text-xs text-muted-foreground">Password Age</p>
+                </div>
+                {passwordAgeInfo.changedAt ? (
+                  <div className="space-y-1.5">
+                    <p className="text-sm text-white">
+                      Changed {formatPasswordAge(passwordAgeInfo.ageInDays)}
+                    </p>
+                    {passwordAgeInfo.expirationDays > 0 && (
+                      <div>
+                        {passwordAgeInfo.isExpired ? (
+                          <p className="text-xs text-red-400 font-medium">
+                            Expired{" "}
+                            {passwordAgeInfo.daysUntilExpiry === 0
+                              ? ""
+                              : `${Math.abs(passwordAgeInfo.daysUntilExpiry ?? 0)} days ago`}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-zinc-400">
+                            Expires in {passwordAgeInfo.daysUntilExpiry} day
+                            {(passwordAgeInfo.daysUntilExpiry ?? 0) !== 1
+                              ? "s"
+                              : ""}
+                          </p>
+                        )}
+                        {/* Progress bar */}
+                        <div className="h-1 bg-zinc-900 rounded-full overflow-hidden mt-1">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              passwordAgeInfo.isExpired
+                                ? "bg-red-500"
+                                : (passwordAgeInfo.daysUntilExpiry ?? 0) <
+                                    passwordAgeInfo.expirationDays * 0.2
+                                  ? "bg-amber-500"
+                                  : "bg-emerald-500"
+                            }`}
+                            style={{
+                              width: `${Math.min(100, ((passwordAgeInfo.expirationDays - (passwordAgeInfo.daysUntilExpiry ?? 0)) / passwordAgeInfo.expirationDays) * 100)}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-amber-400">
+                    No password change recorded
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -189,7 +286,9 @@ export function SettingsClient({ user }: SettingsClientProps) {
               Change Password
             </CardTitle>
             <CardDescription>
-              Update your password. You will be logged out upon success.
+              {forceChange
+                ? "You must change your password to continue."
+                : "Update your password. You will be logged out upon success."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -348,6 +447,18 @@ export function SettingsClient({ user }: SettingsClientProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Password history notice */}
+      {forceChange && (
+        <div className="text-center">
+          <Link
+            href="/dashboard"
+            className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+          >
+            Skip for now (not recommended)
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

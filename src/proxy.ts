@@ -2,7 +2,7 @@ import { jwtVerify } from "jose";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const publicRoutes = ["/login"];
+const publicRoutes = ["/login", "/forgot-password", "/reset-password"];
 const apiPrefix = "/api";
 
 function getSecretKey(): Uint8Array {
