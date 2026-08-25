@@ -1,6 +1,7 @@
 "use client";
 
 import { Edit, Plus, Search, ShieldAlert, Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { deleteUser } from "@/app/actions/users";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Role } from "@/generated/prisma/client";
+import { intlLocaleFor } from "@/i18n/config";
+import type { SecuritySettingsData } from "@/lib/security-settings";
 import { UserForm } from "./UserForm";
 
 interface UserItem {
@@ -43,13 +46,8 @@ interface UserItem {
 interface UsersClientProps {
   initialUsers: UserItem[];
   currentUserId: string;
+  settings: SecuritySettingsData;
 }
-
-const roleLabels: Record<Role, string> = {
-  SUPER_ADMIN: "Super Admin",
-  EDITOR: "Editor",
-  VIEWER: "Viewer",
-};
 
 const roleColors: Record<Role, string> = {
   SUPER_ADMIN: "bg-red-500/10 text-red-400 border-red-500/20",
@@ -57,7 +55,16 @@ const roleColors: Record<Role, string> = {
   VIEWER: "bg-gray-500/10 text-gray-400 border-gray-500/20",
 };
 
-export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
+export function UsersClient({
+  initialUsers,
+  currentUserId,
+  settings,
+}: UsersClientProps) {
+  const t = useTranslations("users");
+  const tc = useTranslations("common");
+  const tr = useTranslations("roles");
+  const locale = useLocale();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<UserItem | null>(null);
@@ -78,7 +85,7 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
       if (res.success) {
         setDeleteId(null);
       } else {
-        alert(res.message || "Failed to delete user");
+        alert(res.message || t("deleteFailed"));
       }
     });
   };
@@ -88,40 +95,33 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            System Users
+            {t("title")}
           </h1>
-          <p className="text-muted-foreground">
-            Manage administrative users and assign system privileges.
-          </p>
+          <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
         <Button
           onClick={() => setIsCreateOpen(true)}
           className="bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
         >
           <Plus className="h-4 w-4" />
-          Add User
+          {t("addUser")}
         </Button>
       </div>
 
       <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">
-            Registered Administrator Users
-          </CardTitle>
-          <CardDescription>
-            Assign viewer, editor, or super admin privileges to system
-            administrators.
-          </CardDescription>
+          <CardTitle className="text-lg">{t("cardTitle")}</CardTitle>
+          <CardDescription>{t("cardDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute top-2.5 start-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search users (name, email)..."
+              placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-background/50 border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
+              className="ps-9 bg-background/50 border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
             />
           </div>
 
@@ -131,19 +131,19 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
               <TableHeader className="bg-muted/40">
                 <TableRow className="hover:bg-transparent border-border/40">
                   <TableHead className="text-gray-300 font-medium">
-                    Name
+                    {t("colName")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Email Address
+                    {t("colEmail")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Privilege Role
+                    {t("colRole")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Created On
+                    {t("colCreated")}
                   </TableHead>
-                  <TableHead className="text-right text-gray-300 font-medium">
-                    Actions
+                  <TableHead className="text-end text-gray-300 font-medium">
+                    {tc("actions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -154,7 +154,7 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
                       colSpan={5}
                       className="h-32 text-center text-muted-foreground"
                     >
-                      No system users found.
+                      {t("noUsers")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -166,23 +166,25 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
                       <TableCell className="font-semibold text-white">
                         {user.name}
                         {user.id === currentUserId && (
-                          <Badge className="ml-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-1 py-0 font-normal">
-                            You
+                          <Badge className="ms-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-1 py-0 font-normal">
+                            {tc("you")}
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-gray-300">
+                      <TableCell className="text-gray-300" dir="ltr">
                         {user.email}
                       </TableCell>
                       <TableCell>
                         <Badge className={`border ${roleColors[user.role]}`}>
-                          {roleLabels[user.role]}
+                          {tr(user.role)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
-                        {new Date(user.createdAt).toLocaleDateString()}
+                        {new Date(user.createdAt).toLocaleDateString(
+                          intlLocaleFor(locale),
+                        )}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-end">
                         <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"
@@ -200,7 +202,7 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
                             className="h-8 w-8 text-gray-300 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-30 disabled:pointer-events-none"
                             title={
                               user.id === currentUserId
-                                ? "Cannot delete yourself"
+                                ? t("cannotDeleteSelf")
                                 : undefined
                             }
                           >
@@ -219,7 +221,11 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
 
       {/* Create User Form Modal */}
       {isCreateOpen && (
-        <UserForm mode="create" onClose={() => setIsCreateOpen(false)} />
+        <UserForm
+          mode="create"
+          settings={settings}
+          onClose={() => setIsCreateOpen(false)}
+        />
       )}
 
       {/* Edit User Form Modal */}
@@ -227,6 +233,7 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
         <UserForm
           mode="edit"
           user={editUser}
+          settings={settings}
           onClose={() => setEditUser(null)}
         />
       )}
@@ -240,12 +247,10 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-500">
               <ShieldAlert className="h-5 w-5" />
-              Delete Administrator User
+              {t("deleteTitle")}
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              Are you sure you want to permanently delete this administrator
-              user? This will instantly revoke their access to the password
-              system and will be written to the security audit trail.
+              {t("deleteDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -255,14 +260,14 @@ export function UsersClient({ initialUsers, currentUserId }: UsersClientProps) {
               disabled={isPending}
               className="text-gray-400 hover:text-white"
             >
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button
               onClick={handleDelete}
               disabled={isPending}
               className="bg-red-600 hover:bg-red-500 text-white"
             >
-              {isPending ? "Revoking..." : "Revoke Access"}
+              {isPending ? t("revoking") : t("revokeAccess")}
             </Button>
           </DialogFooter>
         </DialogContent>

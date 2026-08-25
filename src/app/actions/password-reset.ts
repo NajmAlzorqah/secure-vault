@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { logAudit } from "@/lib/audit";
 import { hashPassword } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -13,7 +14,7 @@ import {
   validateResetToken,
 } from "@/lib/password-reset";
 import { getSecuritySettings } from "@/lib/security-settings";
-import { forgotPasswordSchema } from "@/lib/validations";
+import { getForgotPasswordSchema } from "@/lib/validations";
 
 export interface PasswordResetState {
   message?: string;
@@ -31,11 +32,14 @@ export interface PasswordResetState {
 export async function requestPasswordReset(
   email: string,
 ): Promise<PasswordResetState> {
-  const parsed = forgotPasswordSchema.safeParse({ email });
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+
+  const schema = getForgotPasswordSchema(tv);
+  const parsed = schema.safeParse({ email });
   if (!parsed.success) {
     return {
-      message:
-        "If an account with that email exists, a reset link has been sent.",
+      message: t("resetGeneric"),
     };
   }
 
@@ -47,8 +51,7 @@ export async function requestPasswordReset(
   // Always return the same message regardless of whether user exists
   if (!user) {
     return {
-      message:
-        "If an account with that email exists, a reset link has been sent.",
+      message: t("resetGeneric"),
     };
   }
 
@@ -63,8 +66,7 @@ export async function requestPasswordReset(
   // In production: send email with reset link
   // For this project: include token in response for testing
   return {
-    message:
-      "If an account with that email exists, a reset link has been sent.",
+    message: t("resetGeneric"),
     token,
   };
 }
@@ -77,12 +79,15 @@ export async function resetPassword(
   newPassword: string,
   confirmPassword: string,
 ): Promise<PasswordResetState> {
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+
   if (!token) {
-    return { message: "Invalid or missing reset token." };
+    return { message: t("resetMissingToken") };
   }
 
   if (newPassword !== confirmPassword) {
-    return { message: "Passwords do not match." };
+    return { message: t("passwordsNoMatch") };
   }
 
   const settings = await getSecuritySettings();
@@ -91,14 +96,18 @@ export async function resetPassword(
   const { valid, userId } = await validateResetToken(token);
   if (!valid || !userId) {
     return {
-      message: "Invalid or expired reset token. Please request a new one.",
+      message: t("resetTokenInvalid"),
     };
   }
 
   // Check password history
   const historyCheck = await isPasswordReused(userId, newPassword, settings);
   if (historyCheck.reused) {
-    return { message: historyCheck.message };
+    return {
+      message: tv("passwordReuse", {
+        count: historyCheck.historyCount ?? settings.passwordHistory,
+      }),
+    };
   }
 
   // Hash the new password
@@ -129,7 +138,6 @@ export async function resetPassword(
 
   return {
     success: true,
-    message:
-      "Password reset successfully. You can now log in with your new password.",
+    message: t("resetSuccess"),
   };
 }

@@ -2,6 +2,7 @@ import { UsersClient } from "@/components/dashboard/UsersClient";
 import type { Role } from "@/generated/prisma/client";
 import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getSecuritySettings } from "@/lib/security-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,8 @@ export default async function UsersPage() {
     },
   })) as DbUser[];
 
+  const settings = await getSecuritySettings();
+
   return (
     <UsersClient
       initialUsers={users.map((u: DbUser) => ({
@@ -35,6 +38,7 @@ export default async function UsersPage() {
         createdAt: u.createdAt.toISOString(),
       }))}
       currentUserId={session.userId}
+      settings={settings}
     />
   );
 }

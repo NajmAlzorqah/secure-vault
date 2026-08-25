@@ -5,9 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Geist Sans", sans-serif;
+  --font-sans: "Geist Sans", "IBM Plex Sans Arabic", sans-serif;
   --font-mono: "Geist Mono", monospace;
-  --font-heading: "Geist Sans", sans-serif;
+  --font-heading: "Geist Sans", "IBM Plex Sans Arabic", sans-serif;
 }
 
 @theme inline {

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { logAudit } from "@/lib/audit";
 import { decrypt } from "@/lib/crypto";
 import { db } from "@/lib/db";
@@ -7,10 +8,12 @@ import { getSession } from "@/lib/session";
 import { revealCredentialSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
+  const t = await getTranslations("api");
+
   // Verify authentication
   const session = await getSession();
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return Response.json({ error: t("unauthorized") }, { status: 401 });
   }
 
   // CSRF protection: validate origin/referer header
@@ -23,10 +26,10 @@ export async function POST(request: Request) {
     try {
       const url = new URL(allowedOrigin);
       if (url.host !== host) {
-        return Response.json({ error: "Forbidden" }, { status: 403 });
+        return Response.json({ error: t("forbidden") }, { status: 403 });
       }
     } catch {
-      return Response.json({ error: "Forbidden" }, { status: 403 });
+      return Response.json({ error: t("forbidden") }, { status: 403 });
     }
   }
 
@@ -38,7 +41,7 @@ export async function POST(request: Request) {
   if (!rateLimitResult.success) {
     return Response.json(
       {
-        error: "Too many reveal requests. Please wait a moment.",
+        error: t("tooManyReveals"),
         resetAt: rateLimitResult.resetAt.toISOString(),
       },
       { status: 429 },
@@ -50,15 +53,12 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return Response.json({ error: "Invalid request body" }, { status: 400 });
+    return Response.json({ error: t("invalidBody") }, { status: 400 });
   }
 
   const parsed = revealCredentialSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json(
-      { error: "Invalid credential ID format." },
-      { status: 400 },
-    );
+    return Response.json({ error: t("credentialNotFound") }, { status: 400 });
   }
 
   // Fetch the credential
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
   });
 
   if (!credential) {
-    return Response.json({ error: "Credential not found" }, { status: 404 });
+    return Response.json({ error: t("credentialNotFound") }, { status: 404 });
   }
 
   // Decrypt the password
@@ -86,10 +86,7 @@ export async function POST(request: Request) {
       credential.authTag,
     );
   } catch {
-    return Response.json(
-      { error: "Failed to decrypt credential. Data may be corrupted." },
-      { status: 500 },
-    );
+    return Response.json({ error: t("decryptFailed") }, { status: 500 });
   }
 
   // Audit log the reveal action

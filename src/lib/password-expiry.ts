@@ -71,24 +71,3 @@ export function getPasswordAgeInfo(
     expirationDays,
   };
 }
-
-/**
- * Formats password age as a human-readable string.
- */
-export function formatPasswordAge(ageInDays: number): string {
-  if (ageInDays === 0) return "Today";
-  if (ageInDays === 1) return "1 day ago";
-  if (ageInDays < 30) return `${ageInDays} days ago`;
-  if (ageInDays < 365) {
-    const months = Math.floor(ageInDays / 30);
-    const days = ageInDays % 30;
-    return days > 0
-      ? `${months} month${months !== 1 ? "s" : ""} and ${days} day${days !== 1 ? "s" : ""} ago`
-      : `${months} month${months !== 1 ? "s" : ""} ago`;
-  }
-  const years = Math.floor(ageInDays / 365);
-  const remainingDays = ageInDays % 365;
-  return remainingDays > 0
-    ? `${years} year${years !== 1 ? "s" : ""} and ${remainingDays} day${remainingDays !== 1 ? "s" : ""} ago`
-    : `${years} year${years !== 1 ? "s" : ""} ago`;
-}

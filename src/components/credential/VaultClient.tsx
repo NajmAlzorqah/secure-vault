@@ -8,6 +8,7 @@ import {
   ShieldAlert,
   Trash2,
 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { deleteCredential } from "@/app/actions/credentials";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Role } from "@/generated/prisma/client";
+import { intlLocaleFor } from "@/i18n/config";
 import { CredentialForm } from "./CredentialForm";
 import { RevealPassword } from "./RevealPassword";
 
@@ -61,6 +63,10 @@ export function VaultClient({
   categories,
   userRole,
 }: VaultClientProps) {
+  const t = useTranslations("vault");
+  const tc = useTranslations("common");
+  const locale = useLocale();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -93,7 +99,7 @@ export function VaultClient({
       if (res.success) {
         setDeleteId(null);
       } else {
-        alert(res.message || "Failed to delete credential");
+        alert(res.message || t("deleteFailed"));
       }
     });
   };
@@ -103,11 +109,9 @@ export function VaultClient({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            Credentials Vault
+            {t("title")}
           </h1>
-          <p className="text-muted-foreground">
-            Manage and store system passwords securely.
-          </p>
+          <p className="text-muted-foreground">{t("subtitle")}</p>
         </div>
         {isWriteAuthorized && (
           <Button
@@ -115,28 +119,26 @@ export function VaultClient({
             className="bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
           >
             <Plus className="h-4 w-4" />
-            Add Credential
+            {t("addCredential")}
           </Button>
         )}
       </div>
 
       <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Stored Credentials</CardTitle>
-          <CardDescription>
-            All credentials are encrypted using AES-256-GCM.
-          </CardDescription>
+          <CardTitle className="text-lg">{t("cardTitle")}</CardTitle>
+          <CardDescription>{t("encryptedNote")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Filters */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <div className="relative flex-1">
-              <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute top-2.5 start-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search credentials (title, username, URL)..."
+                placeholder={t("searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-background/50 border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
+                className="ps-9 bg-background/50 border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -150,7 +152,7 @@ export function VaultClient({
                     : "border-border/40 text-gray-300 hover:bg-background/80"
                 }
               >
-                All
+                {tc("all")}
               </Button>
               {categories.map((cat) => (
                 <Button
@@ -176,25 +178,25 @@ export function VaultClient({
               <TableHeader className="bg-muted/40">
                 <TableRow className="hover:bg-transparent border-border/40">
                   <TableHead className="text-gray-300 font-medium">
-                    Title
+                    {t("colTitle")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Category
+                    {t("colCategory")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Username
+                    {t("colUsername")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Password
+                    {t("colPassword")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    URL
+                    {t("colUrl")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Last Updated
+                    {t("colLastUpdated")}
                   </TableHead>
-                  <TableHead className="text-right text-gray-300 font-medium">
-                    Actions
+                  <TableHead className="text-end text-gray-300 font-medium">
+                    {tc("actions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -205,7 +207,7 @@ export function VaultClient({
                       colSpan={7}
                       className="h-32 text-center text-muted-foreground"
                     >
-                      No credentials found matching filters.
+                      {t("noResults")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -236,13 +238,16 @@ export function VaultClient({
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-gray-300">
+                      <TableCell
+                        className="font-mono text-xs text-gray-300"
+                        dir="ltr"
+                      >
                         {cred.username}
                       </TableCell>
                       <TableCell className="min-w-[180px]">
                         <RevealPassword credentialId={cred.id} />
                       </TableCell>
-                      <TableCell className="max-w-[200px] truncate">
+                      <TableCell className="max-w-[200px] truncate" dir="ltr">
                         {cred.url ? (
                           <a
                             href={cred.url}
@@ -259,10 +264,12 @@ export function VaultClient({
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {new Date(cred.updatedAt).toLocaleString()}
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(cred.updatedAt).toLocaleString(
+                          intlLocaleFor(locale),
+                        )}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-end">
                         <div className="flex items-center justify-end gap-2">
                           {isWriteAuthorized && (
                             <>
@@ -318,12 +325,10 @@ export function VaultClient({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-500">
               <ShieldAlert className="h-5 w-5" />
-              Confirm Credential Deletion
+              {t("deleteTitle")}
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              Are you sure you want to permanently delete this credential? This
-              action cannot be undone and will be written to the security audit
-              log.
+              {t("deleteDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -333,14 +338,14 @@ export function VaultClient({
               disabled={isPending}
               className="text-gray-400 hover:text-white"
             >
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button
               onClick={handleDelete}
               disabled={isPending}
               className="bg-red-600 hover:bg-red-500 text-white"
             >
-              {isPending ? "Deleting..." : "Permanently Delete"}
+              {isPending ? t("deleting") : t("permanentlyDelete")}
             </Button>
           </DialogFooter>
         </DialogContent>

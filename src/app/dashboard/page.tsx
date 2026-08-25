@@ -1,11 +1,18 @@
 import { Activity, ClipboardList, KeyRound, Users } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { AuditAction } from "@/generated/prisma/client";
+import { intlLocaleFor } from "@/i18n/config";
 import { verifySession } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  const t = await getTranslations("dashboard");
+  const ta = await getTranslations("auditActions");
+  const tc = await getTranslations("common");
+  const locale = await getLocale();
+
   const session = await verifySession();
 
   const [credentialCount, recentLogs] = await Promise.all([
@@ -49,11 +56,9 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white">
-          Dashboard
+          {t("title")}
         </h1>
-        <p className="text-zinc-400">
-          Overview of your password vault activity.
-        </p>
+        <p className="text-zinc-400">{t("subtitle")}</p>
       </div>
 
       {/* Stats Cards */}
@@ -64,7 +69,7 @@ export default async function DashboardPage() {
           </div>
           <div>
             <p className="text-xs text-zinc-400 font-medium">
-              Stored Credentials
+              {t("storedCredentials")}
             </p>
             <p className="text-2xl font-bold text-white mt-0.5">
               {credentialCount}
@@ -79,7 +84,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-xs text-zinc-400 font-medium">
-                Registered Users
+                {t("registeredUsers")}
               </p>
               <p className="text-2xl font-bold text-white mt-0.5">
                 {userCount}
@@ -94,7 +99,9 @@ export default async function DashboardPage() {
               <ClipboardList className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs text-zinc-400 font-medium">Audit Events</p>
+              <p className="text-xs text-zinc-400 font-medium">
+                {t("auditEvents")}
+              </p>
               <p className="text-2xl font-bold text-white mt-0.5">
                 {auditCount}
               </p>
@@ -107,8 +114,12 @@ export default async function DashboardPage() {
             <Activity className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs text-zinc-400 font-medium">Security Status</p>
-            <p className="text-lg font-bold text-emerald-400 mt-1">Active</p>
+            <p className="text-xs text-zinc-400 font-medium">
+              {t("securityStatus")}
+            </p>
+            <p className="text-lg font-bold text-emerald-400 mt-1">
+              {t("active")}
+            </p>
           </div>
         </div>
       </div>
@@ -117,14 +128,12 @@ export default async function DashboardPage() {
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-zinc-800">
           <h2 className="text-lg font-semibold text-white">
-            Recent Security Activity
+            {t("recentActivity")}
           </h2>
         </div>
         <div className="p-6">
           {recentLogs.length === 0 ? (
-            <p className="text-zinc-500 text-center py-8">
-              No recent activity recorded.
-            </p>
+            <p className="text-zinc-500 text-center py-8">{t("noActivity")}</p>
           ) : (
             <div className="space-y-6">
               {recentLogs.map((log) => (
@@ -135,7 +144,7 @@ export default async function DashboardPage() {
                       <span
                         className={actionColors[log.action] ?? "text-zinc-300"}
                       >
-                        {log.action.replace(/_/g, " ")}
+                        {ta(log.action)}
                       </span>
                       {log.target && (
                         <span className="text-zinc-400">
@@ -145,8 +154,10 @@ export default async function DashboardPage() {
                       )}
                     </p>
                     <p className="text-xs text-zinc-500">
-                      {log.user?.email ?? "System"} •{" "}
-                      {new Date(log.timestamp).toLocaleString()}
+                      {log.user?.email ?? tc("system")} •{" "}
+                      {new Date(log.timestamp).toLocaleString(
+                        intlLocaleFor(locale),
+                      )}
                     </p>
                   </div>
                 </div>

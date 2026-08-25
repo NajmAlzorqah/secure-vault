@@ -2,6 +2,8 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
+import { intlLocaleFor } from "@/i18n/config";
 import { logAudit } from "@/lib/audit";
 import { verifyPassword } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -13,7 +15,7 @@ import {
 } from "@/lib/progressive-delay";
 import { getSecuritySettings } from "@/lib/security-settings";
 import { createSession, deleteSession, getSession } from "@/lib/session";
-import { loginSchema } from "@/lib/validations";
+import { getLoginSchema } from "@/lib/validations";
 
 export interface AuthState {
   errors?: {
@@ -37,9 +39,13 @@ export async function login(
   const userAgent = headersList.get("user-agent") ?? "unknown";
 
   const settings = await getSecuritySettings();
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+  const locale = await getLocale();
 
   // Validate input
-  const parsed = loginSchema.safeParse({
+  const schema = getLoginSchema(tv);
+  const parsed = schema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
   });
@@ -77,7 +83,7 @@ export async function login(
       userAgent,
     });
     return {
-      message: "Invalid email or password.",
+      message: t("invalidCredentials"),
     };
   }
 
@@ -89,13 +95,18 @@ export async function login(
     );
     const minutes = Math.floor(remainingSec / 60);
     const seconds = remainingSec % 60;
-    const timeStr =
-      minutes > 0
-        ? `${minutes} minute${minutes !== 1 ? "s" : ""} and ${seconds} second${seconds !== 1 ? "s" : ""}`
-        : `${seconds} second${seconds !== 1 ? "s" : ""}`;
+
+    const parts: string[] = [];
+    if (minutes > 0) parts.push(t("durationMinutes", { count: minutes }));
+    if (seconds > 0 || parts.length === 0) {
+      parts.push(t("durationSeconds", { count: seconds }));
+    }
+    const timeStr = new Intl.ListFormat(intlLocaleFor(locale), {
+      type: "unit",
+    }).format(parts);
 
     return {
-      message: `Account is temporarily locked. Please try again after ${timeStr}.`,
+      message: t("accountLocked", { time: timeStr }),
     };
   }
 
@@ -122,9 +133,8 @@ export async function login(
     // Lock account if max attempts exceeded
     if (attemptCount >= settings.maxFailedAttempts) {
       await lockAccount(user.id, settings.lockDuration);
-      const lockMinutes = settings.lockDuration;
       return {
-        message: `Too many failed attempts. Account locked for ${lockMinutes} minute${lockMinutes !== 1 ? "s" : ""}.`,
+        message: t("lockedForMinutes", { count: settings.lockDuration }),
       };
     }
 
@@ -132,13 +142,13 @@ export async function login(
     if (delayMs > 0) {
       const delaySec = Math.ceil(delayMs / 1000);
       return {
-        message: `Invalid email or password. Please wait ${delaySec} second${delaySec !== 1 ? "s" : ""} before trying again.`,
+        message: t("delayRetry", { count: delaySec }),
         delaySeconds: delaySec,
       };
     }
 
     return {
-      message: "Invalid email or password.",
+      message: t("invalidCredentials"),
     };
   }
 

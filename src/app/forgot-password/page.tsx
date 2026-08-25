@@ -1,32 +1,42 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Loader2, Mail, Shield } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Mail, Shield } from "lucide-react";
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { requestPasswordReset } from "@/app/actions/password-reset";
+import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
 import {
   type ForgotPasswordInput,
-  forgotPasswordSchema,
+  getForgotPasswordSchema,
 } from "@/lib/validations";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("forgot");
+  const ta = useTranslations("auth");
+  const tv = useTranslations("validation");
+  const locale = useLocale();
   const [serverMessage, setServerMessage] = useState<string | undefined>(
     undefined,
   );
   const [resetToken, setResetToken] = useState<string | undefined>(undefined);
   const [isPending, startTransition] = useTransition();
 
+  const schema = useMemo(() => getForgotPasswordSchema(tv), [tv]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ForgotPasswordInput>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(schema),
     defaultValues: { email: "" },
     mode: "onTouched",
   });
+
+  const BackIcon = locale === "ar" ? ArrowRight : ArrowLeft;
 
   const onSubmit = (data: ForgotPasswordInput) => {
     setServerMessage(undefined);
@@ -46,6 +56,10 @@ export default function ForgotPasswordPage() {
     <div className="relative min-h-screen flex items-center justify-center bg-zinc-950 px-4 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.08),transparent_60%)] pointer-events-none" />
 
+      <div className="fixed top-4 end-4 z-50">
+        <LocaleSwitcher />
+      </div>
+
       <div className="relative z-10 w-full max-w-md">
         <div className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 shadow-2xl space-y-6">
           {/* Header */}
@@ -54,11 +68,9 @@ export default function ForgotPasswordPage() {
               <Shield className="h-8 w-8 text-emerald-400" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-white">
-              Forgot Password
+              {t("title")}
             </h1>
-            <p className="text-sm text-zinc-400">
-              Enter your email to receive a password reset link.
-            </p>
+            <p className="text-sm text-zinc-400">{t("subtitle")}</p>
           </div>
 
           {/* Success / Info message */}
@@ -75,13 +87,13 @@ export default function ForgotPasswordPage() {
           {resetToken && (
             <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg text-xs space-y-2">
               <p className="text-amber-400 font-semibold">
-                Reset Token (for testing):
+                {t("resetTokenLabel")}
               </p>
               <Link
                 href={`/reset-password?token=${resetToken}`}
                 className="text-amber-300 underline break-all block hover:text-amber-200"
               >
-                Click here to reset your password
+                {t("clickToReset")}
               </Link>
             </div>
           )}
@@ -93,16 +105,17 @@ export default function ForgotPasswordPage() {
                 htmlFor="email"
                 className="text-xs font-medium text-zinc-400"
               >
-                Email Address
+                {ta("emailAddress")}
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <Mail className="absolute start-3 top-2.5 h-4 w-4 text-zinc-500 pointer-events-none" />
                 <input
                   id="email"
                   type="email"
                   autoComplete="email"
                   placeholder="admin@vault.local"
-                  className={`w-full bg-zinc-950 border rounded-lg pl-10 pr-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
+                  dir="ltr"
+                  className={`w-full bg-zinc-950 border rounded-lg ps-10 pe-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
                     errors.email
                       ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
                       : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
@@ -126,10 +139,10 @@ export default function ForgotPasswordPage() {
               {isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Sending Reset Link...
+                  {t("sending")}
                 </>
               ) : (
-                "Send Reset Link"
+                t("sendResetLink")
               )}
             </button>
           </form>
@@ -140,8 +153,8 @@ export default function ForgotPasswordPage() {
               href="/login"
               className="text-xs text-zinc-400 hover:text-emerald-400 flex items-center justify-center gap-1 transition-colors"
             >
-              <ArrowLeft className="h-3 w-3" />
-              Back to Login
+              <BackIcon className="h-3 w-3" />
+              {t("backToLogin")}
             </Link>
           </div>
         </div>

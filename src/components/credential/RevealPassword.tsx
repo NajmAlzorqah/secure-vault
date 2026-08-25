@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 
 interface RevealPasswordProps {
@@ -8,6 +9,7 @@ interface RevealPasswordProps {
 }
 
 export function RevealPassword({ credentialId }: RevealPasswordProps) {
+  const t = useTranslations("reveal");
   const [password, setPassword] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ export function RevealPassword({ credentialId }: RevealPasswordProps) {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error ?? "Failed to reveal password");
+        throw new Error(data.error ?? t("revealFailed"));
       }
 
       const data = await res.json();
@@ -45,11 +47,11 @@ export function RevealPassword({ credentialId }: RevealPasswordProps) {
         setPassword(null);
       }, 10_000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : t("unknownError"));
     } finally {
       setLoading(false);
     }
-  }, [credentialId, password, visible]);
+  }, [credentialId, password, visible, t]);
 
   const copyToClipboard = useCallback(async () => {
     if (!password) return;
@@ -71,19 +73,20 @@ export function RevealPassword({ credentialId }: RevealPasswordProps) {
         }
       }, 30_000);
     } catch {
-      setError("Failed to copy to clipboard");
+      setError(t("copyFailed"));
     }
-  }, [password]);
+  }, [password, t]);
 
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-1.5">
         {/* Reveal/Hide button */}
         <button
+          type="button"
           onClick={reveal}
           disabled={loading}
           className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          title={visible ? "Hide password" : "Reveal password"}
+          title={visible ? t("hideTitle") : t("showTitle")}
         >
           {loading ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -97,9 +100,10 @@ export function RevealPassword({ credentialId }: RevealPasswordProps) {
         {/* Copy button */}
         {password && (
           <button
+            type="button"
             onClick={copyToClipboard}
             className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white cursor-pointer transition-all"
-            title="Copy to clipboard (auto-clears in 30s)"
+            title={t("copyTitle")}
           >
             {copied ? (
               <Check className="h-3.5 w-3.5 text-emerald-400" />
@@ -111,11 +115,11 @@ export function RevealPassword({ credentialId }: RevealPasswordProps) {
       </div>
 
       {/* Masked or revealed password */}
-      <span className="font-mono text-xs text-zinc-300">
+      <span className="font-mono text-xs text-zinc-300" dir="ltr">
         {visible && password ? password : "••••••••"}
       </span>
 
-      {error && <span className="text-red-400 text-[10px] ml-1">{error}</span>}
+      {error && <span className="text-red-400 text-[10px] ms-1">{error}</span>}
     </div>
   );
 }

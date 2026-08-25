@@ -39,6 +39,7 @@ export default async function SettingsPage({
   return (
     <SettingsClient
       user={user}
+      settings={settings}
       passwordAgeInfo={passwordAgeInfo}
       forceChange={forceChange || user.forcePasswordChange}
     />

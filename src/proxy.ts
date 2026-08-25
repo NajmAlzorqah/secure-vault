@@ -51,10 +51,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Authenticated user trying to access login page
-  if (isPublicRoute && session) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // NOTE: Do NOT redirect authenticated-looking users away from public routes
+  // here. The proxy only validates the JWT signature; full validation (user
+  // existence + session version) happens in the app via getSession(). If the
+  // signature is valid but the session is stale, redirecting to /dashboard
+  // here would cause an infinite /login <-> /dashboard redirect loop. The
+  // login page performs the full check server-side instead.
 
   return NextResponse.next();
 }

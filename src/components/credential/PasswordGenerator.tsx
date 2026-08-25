@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -9,6 +10,7 @@ interface PasswordGeneratorProps {
 }
 
 export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
+  const t = useTranslations("generator");
   const [length, setLength] = useState(20);
   const [uppercase, setUppercase] = useState(true);
   const [lowercase, setLowercase] = useState(true);
@@ -65,21 +67,24 @@ export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
     <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-900/40 space-y-3">
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Password Generator
+          {t("title")}
         </h4>
       </div>
 
       {/* Generated password display */}
       {generated && (
-        <div className="flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded-lg p-2.5">
-          <code className="text-xs font-mono text-emerald-400 break-all select-all">
+        <div className="flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 gap-2">
+          <code
+            className="text-xs font-mono text-emerald-400 break-all select-all flex-1"
+            dir="ltr"
+          >
             {generated}
           </code>
           <button
             type="button"
             onClick={copyToClipboard}
-            className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white cursor-pointer ml-2 transition-all"
-            title="Copy"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white cursor-pointer ms-2 transition-all shrink-0"
+            title={t("copy")}
           >
             {copied ? (
               <Check className="h-3.5 w-3.5 text-emerald-400" />
@@ -94,7 +99,7 @@ export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
       <div className="space-y-3">
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-zinc-400">
-            <span>Length:</span>
+            <span>{t("length")}</span>
             <span className="font-semibold text-white">{length}</span>
           </div>
           <input
@@ -103,6 +108,7 @@ export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
             max={128}
             value={length}
             onChange={(e) => setLength(Number(e.target.value))}
+            dir="ltr"
             className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
         </div>
@@ -154,7 +160,7 @@ export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
         className="w-full text-xs font-semibold py-1.5 gap-2 border-zinc-800 text-white bg-zinc-900 hover:bg-zinc-800"
       >
         <RefreshCw className="h-3.5 w-3.5" />
-        Generate Password
+        {t("generate")}
       </Button>
     </div>
   );

@@ -1,195 +1,119 @@
 import { z } from "zod";
 import type { SecuritySettingsData } from "./security-settings";
 
+/**
+ * Translator function shape compatible with next-intl's `t`.
+ */
+export type TranslateFn = (
+  key: string,
+  params?: Record<string, string | number | Date>,
+) => string;
+
 // ─── Dynamic Password Validation ─────────────────────────────────────────────
 
 /**
- * Builds a Zod password validation string based on SecuritySettings.
+ * Builds a Zod password validation based on SecuritySettings.
  * Used for server-side validation in actions and API routes.
  */
 export function getPasswordValidationString(
   settings: SecuritySettingsData,
+  t: TranslateFn,
 ): z.ZodString {
-  let field = z
-    .string()
-    .min(
-      settings.minimumPasswordLength,
-      `Password must be at least ${settings.minimumPasswordLength} characters`,
-    );
+  let field = z.string().min(settings.minimumPasswordLength, {
+    message: t("passwordMinLength", { count: settings.minimumPasswordLength }),
+  });
 
   if (settings.requireUppercase) {
-    field = field.regex(
-      /[A-Z]/,
-      "Password must contain at least one uppercase letter",
-    );
+    field = field.regex(/[A-Z]/, { message: t("passwordUppercase") });
   }
   if (settings.requireLowercase) {
-    field = field.regex(
-      /[a-z]/,
-      "Password must contain at least one lowercase letter",
-    );
+    field = field.regex(/[a-z]/, { message: t("passwordLowercase") });
   }
   if (settings.requireNumber) {
-    field = field.regex(/[0-9]/, "Password must contain at least one number");
+    field = field.regex(/[0-9]/, { message: t("passwordNumber") });
   }
   if (settings.requireSpecialChar) {
-    field = field.regex(
-      /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character",
-    );
+    field = field.regex(/[^a-zA-Z0-9]/, { message: t("passwordSpecial") });
   }
 
   return field;
 }
 
-/**
- * Client-side representation of password rules driven by settings.
- * Used by the PasswordRules component to render the checklist.
- */
-export interface PasswordRuleDef {
-  id: string;
-  label: string;
-  test: (password: string) => boolean;
-}
-
-export function getPasswordRulesFromSettings(
-  settings: SecuritySettingsData,
-): PasswordRuleDef[] {
-  const rules: PasswordRuleDef[] = [
-    {
-      id: "length",
-      label: `At least ${settings.minimumPasswordLength} characters`,
-      test: (p) => p.length >= settings.minimumPasswordLength,
-    },
-  ];
-
-  if (settings.requireUppercase) {
-    rules.push({
-      id: "uppercase",
-      label: "At least one uppercase letter",
-      test: (p) => /[A-Z]/.test(p),
-    });
-  }
-  if (settings.requireLowercase) {
-    rules.push({
-      id: "lowercase",
-      label: "At least one lowercase letter",
-      test: (p) => /[a-z]/.test(p),
-    });
-  }
-  if (settings.requireNumber) {
-    rules.push({
-      id: "number",
-      label: "At least one number",
-      test: (p) => /[0-9]/.test(p),
-    });
-  }
-  if (settings.requireSpecialChar) {
-    rules.push({
-      id: "special",
-      label: "At least one special character",
-      test: (p) => /[^a-zA-Z0-9]/.test(p),
-    });
-  }
-
-  return rules;
-}
-
 // ─── Authentication ──────────────────────────────────────────────────────────
 
-export const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .trim()
-    .toLowerCase(),
-  password: z.string().min(1, "Password is required"),
-});
+export const getLoginSchema = (t: TranslateFn) =>
+  z.object({
+    email: z
+      .string()
+      .min(1, { message: t("emailRequired") })
+      .email({ message: t("emailInvalid") })
+      .trim()
+      .toLowerCase(),
+    password: z.string().min(1, { message: t("passwordRequired") }),
+  });
 
-export type LoginInput = z.infer<typeof loginSchema>;
+export type LoginInput = z.infer<ReturnType<typeof getLoginSchema>>;
 
-export const createCredentialSchema = z.object({
+export const getCredentialBaseShape = (t: TranslateFn) => ({
   title: z
     .string()
-    .min(1, "Title is required")
-    .max(100, "Title must be 100 characters or less")
+    .min(1, { message: t("titleRequired") })
+    .max(100, { message: t("titleMax", { count: 100 }) })
     .trim(),
   username: z
     .string()
-    .min(1, "Username is required")
-    .max(100, "Username must be 100 characters or less")
+    .min(1, { message: t("usernameRequired") })
+    .max(100, { message: t("usernameMax", { count: 100 }) })
     .trim(),
-  password: z
-    .string()
-    .min(12, "Password must be at least 12 characters")
-    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character",
-    ),
   url: z
     .string()
-    .max(500, "URL must be 500 characters or less")
-    .url("Please enter a valid URL")
+    .max(500, { message: t("urlMax", { count: 500 }) })
+    .url({ message: t("urlInvalid") })
     .optional()
     .or(z.literal("")),
   notes: z
     .string()
-    .max(5000, "Notes must be 5000 characters or less")
+    .max(5000, { message: t("notesMax", { count: 5000 }) })
     .optional()
     .or(z.literal("")),
   category: z
     .string()
-    .max(50, "Category must be 50 characters or less")
+    .max(50, { message: t("categoryMax", { count: 50 }) })
     .optional()
     .or(z.literal("")),
 });
 
-export type CreateCredentialInput = z.infer<typeof createCredentialSchema>;
+export const getCreateCredentialSchema = (t: TranslateFn) =>
+  z.object({
+    ...getCredentialBaseShape(t),
+    password: z
+      .string()
+      .min(12, { message: t("passwordMinLength", { count: 12 }) })
+      .regex(/[a-zA-Z]/, { message: t("passwordLetter") })
+      .regex(/[0-9]/, { message: t("passwordNumber") })
+      .regex(/[^a-zA-Z0-9]/, { message: t("passwordSpecial") }),
+  });
 
-export const updateCredentialSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(100, "Title must be 100 characters or less")
-    .trim(),
-  username: z
-    .string()
-    .min(1, "Username is required")
-    .max(100, "Username must be 100 characters or less")
-    .trim(),
-  password: z
-    .string()
-    .min(12, "Password must be at least 12 characters")
-    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character",
-    )
-    .optional()
-    .or(z.literal("")),
-  url: z
-    .string()
-    .max(500, "URL must be 500 characters or less")
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal("")),
-  notes: z
-    .string()
-    .max(5000, "Notes must be 5000 characters or less")
-    .optional()
-    .or(z.literal("")),
-  category: z
-    .string()
-    .max(50, "Category must be 50 characters or less")
-    .optional()
-    .or(z.literal("")),
-});
+export type CreateCredentialInput = z.infer<
+  ReturnType<typeof getCreateCredentialSchema>
+>;
 
-export type UpdateCredentialInput = z.infer<typeof updateCredentialSchema>;
+export const getUpdateCredentialSchema = (t: TranslateFn) =>
+  z.object({
+    ...getCredentialBaseShape(t),
+    password: z
+      .string()
+      .min(12, { message: t("passwordMinLength", { count: 12 }) })
+      .regex(/[a-zA-Z]/, { message: t("passwordLetter") })
+      .regex(/[0-9]/, { message: t("passwordNumber") })
+      .regex(/[^a-zA-Z0-9]/, { message: t("passwordSpecial") })
+      .optional()
+      .or(z.literal("")),
+  });
+
+export type UpdateCredentialInput = z.infer<
+  ReturnType<typeof getUpdateCredentialSchema>
+>;
 
 // ─── Users ───────────────────────────────────────────────────────────────────
 
@@ -197,154 +121,113 @@ export type UpdateCredentialInput = z.infer<typeof updateCredentialSchema>;
  * Builds a createUserSchema with password validation driven by SecuritySettings.
  */
 export function getCreateUserSchema(settings: SecuritySettingsData) {
-  return z.object({
-    name: z
-      .string()
-      .min(2, "Name must be at least 2 characters")
-      .max(100, "Name must be 100 characters or less")
-      .trim(),
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Please enter a valid email address")
-      .trim()
-      .toLowerCase(),
-    password: getPasswordValidationString(settings),
-    role: z.enum(["SUPER_ADMIN", "EDITOR", "VIEWER"], {
-      message: "Role is required",
-    }),
-  });
+  return (t: TranslateFn) =>
+    z.object({
+      name: z
+        .string()
+        .min(2, { message: t("nameMin", { count: 2 }) })
+        .max(100, { message: t("nameMax", { count: 100 }) })
+        .trim(),
+      email: z
+        .string()
+        .min(1, { message: t("emailRequired") })
+        .email({ message: t("emailInvalid") })
+        .trim()
+        .toLowerCase(),
+      password: getPasswordValidationString(settings, t),
+      role: z.enum(["SUPER_ADMIN", "EDITOR", "VIEWER"], {
+        message: t("roleRequired"),
+      }),
+    });
 }
 
 /**
  * Builds an updateUserSchema with password validation driven by SecuritySettings.
  */
 export function getUpdateUserSchema(settings: SecuritySettingsData) {
-  return z.object({
-    id: z.string().uuid(),
-    name: z
-      .string()
-      .min(2, "Name must be at least 2 characters")
-      .max(100, "Name must be 100 characters or less")
-      .trim()
-      .optional(),
-    email: z
-      .string()
-      .email("Please enter a valid email address")
-      .trim()
-      .toLowerCase()
-      .optional(),
-    role: z.enum(["SUPER_ADMIN", "EDITOR", "VIEWER"]).optional(),
-    password: getPasswordValidationString(settings)
-      .optional()
-      .or(z.literal("")),
-    forcePasswordChange: z.boolean().optional(),
-  });
+  return (t: TranslateFn) =>
+    z.object({
+      id: z.string().uuid(),
+      name: z
+        .string()
+        .min(2, { message: t("nameMin", { count: 2 }) })
+        .max(100, { message: t("nameMax", { count: 100 }) })
+        .trim()
+        .optional(),
+      email: z
+        .string()
+        .email({ message: t("emailInvalid") })
+        .trim()
+        .toLowerCase()
+        .optional(),
+      role: z.enum(["SUPER_ADMIN", "EDITOR", "VIEWER"]).optional(),
+      password: getPasswordValidationString(settings, t)
+        .optional()
+        .or(z.literal("")),
+      forcePasswordChange: z.boolean().optional(),
+    });
 }
 
 /**
  * Builds a changePasswordSchema with password validation driven by SecuritySettings.
  */
 export function getChangePasswordSchema(settings: SecuritySettingsData) {
-  return z
-    .object({
-      currentPassword: z.string().min(1, "Current password is required"),
-      newPassword: getPasswordValidationString(settings),
-      confirmPassword: z.string().min(1, "Please confirm your new password"),
-    })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-      message: "Passwords do not match",
-      path: ["confirmPassword"],
-    });
+  return (t: TranslateFn) =>
+    z
+      .object({
+        currentPassword: z
+          .string()
+          .min(1, { message: t("currentPasswordRequired") }),
+        newPassword: getPasswordValidationString(settings, t),
+        confirmPassword: z
+          .string()
+          .min(1, { message: t("confirmPasswordRequired") }),
+      })
+      .refine((data) => data.newPassword === data.confirmPassword, {
+        message: t("passwordsNoMatch"),
+        path: ["confirmPassword"],
+      });
 }
 
-// Backward-compatible schemas (use minimum defaults for when settings aren't available)
-export const createUserSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must be 100 characters or less")
-    .trim(),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .trim()
-    .toLowerCase(),
-  password: z
-    .string()
-    .min(12, "Password must be at least 12 characters")
-    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character",
-    ),
-  role: z.enum(["SUPER_ADMIN", "EDITOR", "VIEWER"], {
-    message: "Role is required",
-  }),
-});
+export type CreateUserInput = z.infer<
+  ReturnType<ReturnType<typeof getCreateUserSchema>>
+>;
 
-export type CreateUserInput = z.infer<typeof createUserSchema>;
-
-export const updateUserSchema = z.object({
-  id: z.string().uuid(),
-  name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(100, "Name must be 100 characters or less")
-    .trim()
-    .optional(),
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .trim()
-    .toLowerCase()
-    .optional(),
-  role: z.enum(["SUPER_ADMIN", "EDITOR", "VIEWER"]).optional(),
-  password: z
-    .string()
-    .min(12, "Password must be at least 12 characters")
-    .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(
-      /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character",
-    )
-    .optional()
-    .or(z.literal("")),
-  forcePasswordChange: z.boolean().optional(),
-});
-
-export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type UpdateUserInput = z.infer<
+  ReturnType<ReturnType<typeof getUpdateUserSchema>>
+>;
 
 // ─── Password Change ─────────────────────────────────────────────────────────
 
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z
-      .string()
-      .min(12, "Password must be at least 12 characters")
-      .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-      .regex(/[0-9]/, "Password must contain at least one number")
-      .regex(
-        /[^a-zA-Z0-9]/,
-        "Password must contain at least one special character",
-      ),
-    confirmPassword: z.string().min(1, "Please confirm your new password"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+export const getDefaultChangePasswordSchema = (t: TranslateFn) =>
+  z
+    .object({
+      currentPassword: z
+        .string()
+        .min(1, { message: t("currentPasswordRequired") }),
+      newPassword: z
+        .string()
+        .min(12, { message: t("passwordMinLength", { count: 12 }) })
+        .regex(/[a-zA-Z]/, { message: t("passwordLetter") })
+        .regex(/[0-9]/, { message: t("passwordNumber") })
+        .regex(/[^a-zA-Z0-9]/, { message: t("passwordSpecial") }),
+      confirmPassword: z
+        .string()
+        .min(1, { message: t("confirmPasswordRequired") }),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t("passwordsNoMatch"),
+      path: ["confirmPassword"],
+    });
 
-export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type ChangePasswordInput = z.infer<
+  ReturnType<typeof getDefaultChangePasswordSchema>
+>;
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
 export const idSchema = z.object({
-  id: z.string().uuid("Invalid ID format"),
+  id: z.string().uuid(),
 });
 
 export type IdInput = z.infer<typeof idSchema>;
@@ -352,35 +235,41 @@ export type IdInput = z.infer<typeof idSchema>;
 // ─── Reveal ───────────────────────────────────────────────────────────────────
 
 export const revealCredentialSchema = z.object({
-  credentialId: z.string().uuid("Invalid credential ID format"),
+  credentialId: z.string().uuid(),
 });
 
 export type RevealCredentialInput = z.infer<typeof revealCredentialSchema>;
 
 // ─── Password Reset ──────────────────────────────────────────────────────────
 
-export const forgotPasswordSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .trim()
-    .toLowerCase(),
-});
+export const getForgotPasswordSchema = (t: TranslateFn) =>
+  z.object({
+    email: z
+      .string()
+      .min(1, { message: t("emailRequired") })
+      .email({ message: t("emailInvalid") })
+      .trim()
+      .toLowerCase(),
+  });
 
-export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ForgotPasswordInput = z.infer<
+  ReturnType<typeof getForgotPasswordSchema>
+>;
 
 export function getResetPasswordSchema(settings: SecuritySettingsData) {
-  return z
-    .object({
-      token: z.string().min(1, "Reset token is required"),
-      newPassword: getPasswordValidationString(settings),
-      confirmPassword: z.string().min(1, "Please confirm your new password"),
-    })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-      message: "Passwords do not match",
-      path: ["confirmPassword"],
-    });
+  return (t: TranslateFn) =>
+    z
+      .object({
+        token: z.string().min(1, { message: t("tokenRequired") }),
+        newPassword: getPasswordValidationString(settings, t),
+        confirmPassword: z
+          .string()
+          .min(1, { message: t("confirmPasswordRequired") }),
+      })
+      .refine((data) => data.newPassword === data.confirmPassword, {
+        message: t("passwordsNoMatch"),
+        path: ["confirmPassword"],
+      });
 }
 
 export type ResetPasswordInput = {
@@ -393,46 +282,34 @@ export type ResetPasswordInput = {
  * Client-side reset password schema with sensible defaults.
  * Server will validate against actual SecuritySettings.
  */
-export const resetPasswordClientSchema = z
-  .object({
-    token: z.string().min(1, "Reset token is required"),
-    newPassword: z
-      .string()
-      .min(12, "Password must be at least 12 characters")
-      .regex(/[A-Z]/, "Must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Must contain at least one number")
-      .regex(/[^a-zA-Z0-9]/, "Must contain at least one special character"),
-    confirmPassword: z.string().min(1, "Please confirm your new password"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+export const getResetPasswordClientSchema = (t: TranslateFn) =>
+  z
+    .object({
+      token: z.string().min(1, { message: t("tokenRequired") }),
+      newPassword: z
+        .string()
+        .min(12, { message: t("passwordMinLength", { count: 12 }) })
+        .regex(/[A-Z]/, { message: t("passwordUppercase") })
+        .regex(/[a-z]/, { message: t("passwordLowercase") })
+        .regex(/[0-9]/, { message: t("passwordNumber") })
+        .regex(/[^a-zA-Z0-9]/, { message: t("passwordSpecial") }),
+      confirmPassword: z
+        .string()
+        .min(1, { message: t("confirmPasswordRequired") }),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t("passwordsNoMatch"),
+      path: ["confirmPassword"],
+    });
 
 // ─── Security Settings ──────────────────────────────────────────────────────
 
 export const securitySettingsSchema = z.object({
-  minimumPasswordLength: z
-    .number()
-    .min(12, "Must be between 12 and 64")
-    .max(64, "Must be between 12 and 64"),
-  passwordHistory: z
-    .number()
-    .min(0, "Must be between 0 and 24")
-    .max(24, "Must be between 0 and 24"),
-  lockDuration: z
-    .number()
-    .min(1, "Must be between 1 and 1440 minutes")
-    .max(1440, "Must be between 1 and 1440 minutes"),
-  expirationDays: z
-    .number()
-    .min(0, "Must be between 0 and 3650")
-    .max(3650, "Must be between 0 and 3650"),
-  maxFailedAttempts: z
-    .number()
-    .min(1, "Must be between 1 and 50")
-    .max(50, "Must be between 1 and 50"),
+  minimumPasswordLength: z.number(),
+  passwordHistory: z.number(),
+  lockDuration: z.number(),
+  expirationDays: z.number(),
+  maxFailedAttempts: z.number(),
   requireSpecialChar: z.boolean(),
   requireUppercase: z.boolean(),
   requireNumber: z.boolean(),

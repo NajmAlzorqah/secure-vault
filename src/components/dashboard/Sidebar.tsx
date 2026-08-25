@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { Role } from "@/generated/prisma/client";
 
@@ -24,42 +25,42 @@ interface SidebarProps {
 const navItems = [
   {
     href: "/dashboard",
-    label: "Dashboard",
+    labelKey: "dashboard",
     icon: Shield,
     exact: true,
     roles: ["SUPER_ADMIN", "EDITOR", "VIEWER"] as Role[],
   },
   {
     href: "/dashboard/vault",
-    label: "Vault",
+    labelKey: "vault",
     icon: KeyRound,
     exact: false,
     roles: ["SUPER_ADMIN", "EDITOR", "VIEWER"] as Role[],
   },
   {
     href: "/dashboard/users",
-    label: "Users",
+    labelKey: "users",
     icon: Users,
     exact: false,
     roles: ["SUPER_ADMIN"] as Role[],
   },
   {
     href: "/dashboard/security",
-    label: "Security",
+    labelKey: "security",
     icon: ShieldCheck,
     exact: false,
     roles: ["SUPER_ADMIN"] as Role[],
   },
   {
     href: "/dashboard/audit",
-    label: "Audit Logs",
+    labelKey: "auditLogs",
     icon: ClipboardList,
     exact: false,
     roles: ["SUPER_ADMIN"] as Role[],
   },
   {
     href: "/dashboard/settings",
-    label: "Settings",
+    labelKey: "settings",
     icon: Settings,
     exact: false,
     roles: ["SUPER_ADMIN", "EDITOR", "VIEWER"] as Role[],
@@ -67,6 +68,7 @@ const navItems = [
 ];
 
 export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
+  const t = useTranslations("nav");
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -74,7 +76,7 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
 
   return (
     <aside
-      className={`flex flex-col bg-zinc-900 border-r border-zinc-800 transition-all duration-300 relative z-10 h-screen shrink-0 ${collapsed ? "w-[70px]" : "w-[260px]"}`}
+      className={`flex flex-col bg-zinc-900 border-e border-zinc-800 transition-all duration-300 relative z-10 h-screen shrink-0 ${collapsed ? "w-[70px]" : "w-[260px]"}`}
     >
       {/* Logo Header */}
       <div className="h-[70px] flex items-center justify-between px-4 border-b border-zinc-800/50">
@@ -90,12 +92,12 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
           type="button"
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-center justify-center w-6 h-6 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white cursor-pointer transition-all"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
         >
           {collapsed ? (
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight className="h-3 w-3 rtl:-scale-x-100" />
           ) : (
-            <ChevronLeft className="h-3 w-3" />
+            <ChevronLeft className="h-3 w-3 rtl:-scale-x-100" />
           )}
         </button>
       </div>
@@ -106,7 +108,7 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
           <div className="flex items-center gap-2">
             <Lock className="h-4 w-4 text-amber-400 shrink-0" />
             <p className="text-[10px] text-amber-300 font-medium leading-tight">
-              Password change required
+              {t("passwordChangeRequired")}
             </p>
           </div>
         </div>
@@ -128,10 +130,10 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
                   ? "text-white bg-emerald-500/10 border border-emerald-500/20"
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800 border border-transparent"
               }`}
-              title={collapsed ? item.label : undefined}
+              title={collapsed ? t(item.labelKey) : undefined}
             >
               <item.icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span>{t(item.labelKey)}</span>}
             </Link>
           );
         })}
@@ -140,7 +142,10 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
       {/* Footer */}
       <div className="p-4 border-t border-zinc-800/50 text-center">
         {!collapsed && (
-          <p className="text-[10px] text-zinc-500 font-medium whitespace-nowrap">
+          <p
+            className="text-[10px] text-zinc-500 font-medium whitespace-nowrap"
+            dir="ltr"
+          >
             v1.0.0 • AES-256-GCM
           </p>
         )}

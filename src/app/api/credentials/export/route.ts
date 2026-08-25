@@ -1,9 +1,11 @@
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { logAudit } from "@/lib/audit";
 import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 export async function GET() {
+  const t = await getTranslations("api");
   try {
     // Only SUPER_ADMIN is authorized to export credentials
     const session = await requireRole(["SUPER_ADMIN"]);
@@ -38,6 +40,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error("[EXPORT ERROR] Failed to export credentials:", error);
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return Response.json({ error: t("unauthorized") }, { status: 401 });
   }
 }

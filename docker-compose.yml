@@ -1,10 +1,10 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16
     container_name: password_vault_db
     restart: unless-stopped
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${DB_PORT:-5433}:5432"
     environment:
       POSTGRES_USER: ${DB_USER:-vault_admin}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-vault_secret_2024}
@@ -12,7 +12,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-vault_admin} -d ${DB_NAME:-password_vault}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USER:-vault_admin} -d ${DB_NAME:-password_vault}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5

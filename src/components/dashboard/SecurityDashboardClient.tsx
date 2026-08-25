@@ -10,6 +10,8 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { intlLocaleFor } from "@/i18n/config";
 
 interface SecurityDashboardClientProps {
   settings: {
@@ -51,17 +53,20 @@ export function SecurityDashboardClient({
   stats,
   recentSecurityEvents,
 }: SecurityDashboardClientProps) {
+  const t = useTranslations("securityDashboard");
+  const ta = useTranslations("auditActions");
+  const tc = useTranslations("common");
+  const locale = useLocale();
+
   const securityScore = calculateSecurityScore(settings, stats);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white">
-          Security Dashboard
+          {t("title")}
         </h1>
-        <p className="text-zinc-400">
-          Overview of your system&apos;s security posture and policies.
-        </p>
+        <p className="text-zinc-400">{t("subtitle")}</p>
       </div>
 
       {/* Security Score */}
@@ -88,7 +93,7 @@ export function SecurityDashboardClient({
           </div>
           <div>
             <p className="text-xs text-zinc-400 font-medium">
-              Overall Security Score
+              {t("scoreLabel")}
             </p>
             <p
               className={`text-3xl font-bold ${
@@ -102,13 +107,13 @@ export function SecurityDashboardClient({
               {securityScore}%
             </p>
           </div>
-          <div className="ml-auto text-right">
+          <div className="ms-auto text-end">
             <p className="text-xs text-zinc-500">
               {securityScore >= 80
-                ? "Strong security configuration"
+                ? t("scoreStrong")
                 : securityScore >= 50
-                  ? "Moderate — review recommendations"
-                  : "Weak — immediate action recommended"}
+                  ? t("scoreModerate")
+                  : t("scoreWeak")}
             </p>
           </div>
         </div>
@@ -118,25 +123,25 @@ export function SecurityDashboardClient({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={<Users className="h-5 w-5" />}
-          label="Total Users"
+          label={t("totalUsers")}
           value={stats.totalUsers}
           color="blue"
         />
         <StatCard
           icon={<ShieldOff className="h-5 w-5" />}
-          label="Locked Accounts"
+          label={t("lockedAccounts")}
           value={stats.lockedUsers}
           color={stats.lockedUsers > 0 ? "red" : "emerald"}
         />
         <StatCard
           icon={<FileWarning className="h-5 w-5" />}
-          label="Failed Logins (24h)"
+          label={t("failedLogins")}
           value={stats.recentFailedAttempts}
           color={stats.recentFailedAttempts > 10 ? "red" : "amber"}
         />
         <StatCard
           icon={<AlertTriangle className="h-5 w-5" />}
-          label="Expired Passwords"
+          label={t("expiredPasswords")}
           value={stats.usersWithExpiredPasswords}
           color={stats.usersWithExpiredPasswords > 0 ? "red" : "emerald"}
         />
@@ -148,56 +153,56 @@ export function SecurityDashboardClient({
           <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              Current Security Policy
+              {t("policyTitle")}
             </h2>
             <Link
               href="/dashboard/security/settings"
               className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg px-3 py-1.5 transition-colors"
             >
               <Settings className="h-3.5 w-3.5" />
-              Configure
+              {t("configure")}
             </Link>
           </div>
           <div className="p-6 space-y-3">
             <PolicyRow
-              label="Minimum Password Length"
-              value={`${settings.minimumPasswordLength} characters`}
+              label={t("minLength")}
+              value={t("characters", { count: settings.minimumPasswordLength })}
             />
             <PolicyRow
-              label="Password History"
-              value={`Last ${settings.passwordHistory} passwords`}
+              label={t("history")}
+              value={t("lastPasswords", { count: settings.passwordHistory })}
             />
             <PolicyRow
-              label="Lock Duration"
-              value={`${settings.lockDuration} minutes`}
+              label={t("lockDuration")}
+              value={t("minutes", { count: settings.lockDuration })}
             />
             <PolicyRow
-              label="Password Expiration"
+              label={t("expiration")}
               value={
                 settings.expirationDays > 0
-                  ? `${settings.expirationDays} days`
-                  : "Never"
+                  ? t("days", { count: settings.expirationDays })
+                  : tc("never")
               }
             />
             <PolicyRow
-              label="Max Failed Attempts"
+              label={t("maxAttempts")}
               value={`${settings.maxFailedAttempts}`}
             />
             <PolicyRow
-              label="Uppercase Required"
-              value={settings.requireUppercase ? "Yes" : "No"}
+              label={t("requireUppercase")}
+              value={settings.requireUppercase ? tc("yes") : tc("no")}
             />
             <PolicyRow
-              label="Lowercase Required"
-              value={settings.requireLowercase ? "Yes" : "No"}
+              label={t("requireLowercase")}
+              value={settings.requireLowercase ? tc("yes") : tc("no")}
             />
             <PolicyRow
-              label="Number Required"
-              value={settings.requireNumber ? "Yes" : "No"}
+              label={t("requireNumber")}
+              value={settings.requireNumber ? tc("yes") : tc("no")}
             />
             <PolicyRow
-              label="Special Character Required"
-              value={settings.requireSpecialChar ? "Yes" : "No"}
+              label={t("requireSpecial")}
+              value={settings.requireSpecialChar ? tc("yes") : tc("no")}
             />
           </div>
         </div>
@@ -207,13 +212,13 @@ export function SecurityDashboardClient({
           <div className="px-6 py-4 border-b border-zinc-800">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <Clock className="h-5 w-5 text-amber-400" />
-              Recent Security Events
+              {t("eventsTitle")}
             </h2>
           </div>
           <div className="p-6">
             {recentSecurityEvents.length === 0 ? (
               <p className="text-zinc-500 text-center py-8 text-sm">
-                No recent security events recorded.
+                {t("noEvents")}
               </p>
             ) : (
               <div className="space-y-3 max-h-[400px] overflow-y-auto">
@@ -228,15 +233,17 @@ export function SecurityDashboardClient({
                         "text-zinc-400 bg-zinc-800 border-zinc-700"
                       }`}
                     >
-                      {event.action.replace(/_/g, " ")}
+                      {ta(event.action)}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-zinc-300 truncate">
-                        {event.details || "No details"}
+                        {event.details || t("noDetails")}
                       </p>
                       <p className="text-[10px] text-zinc-500 mt-0.5">
                         {event.userEmail} •{" "}
-                        {new Date(event.timestamp).toLocaleString()}
+                        {new Date(event.timestamp).toLocaleString(
+                          intlLocaleFor(locale),
+                        )}
                         {event.ipAddress && ` • ${event.ipAddress}`}
                       </p>
                     </div>

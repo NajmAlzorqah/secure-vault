@@ -2,13 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, X } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { createUser, type UserState, updateUser } from "@/app/actions/users";
 import { Button } from "@/components/ui/button";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import type { Role } from "@/generated/prisma/client";
-import { createUserSchema, updateUserSchema } from "@/lib/validations";
+import type { SecuritySettingsData } from "@/lib/security-settings";
+import { getCreateUserSchema, getUpdateUserSchema } from "@/lib/validations";
 
 interface UserFormProps {
   mode: "create" | "edit";
@@ -18,11 +20,20 @@ interface UserFormProps {
     email: string;
     role: Role;
   };
+  settings: SecuritySettingsData;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
+export function UserForm({
+  mode,
+  user,
+  settings,
+  onClose,
+  onSuccess,
+}: UserFormProps) {
+  const t = useTranslations("userForm");
+  const tv = useTranslations("validation");
   const action = mode === "create" ? createUser : updateUser;
   const [serverState, setServerState] = useState<UserState | undefined>(
     undefined,
@@ -30,7 +41,13 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
 
-  const schema = mode === "create" ? createUserSchema : updateUserSchema;
+  const schema = useMemo(
+    () =>
+      mode === "create"
+        ? getCreateUserSchema(settings)(tv)
+        : getUpdateUserSchema(settings)(tv),
+    [mode, settings, tv],
+  );
 
   const {
     register,
@@ -109,12 +126,13 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
           <h3 className="text-lg font-semibold text-white">
-            {mode === "create" ? "Add System User" : "Edit Admin User"}
+            {mode === "create" ? t("addTitle") : t("editTitle")}
           </h3>
           <button
             type="button"
             onClick={onClose}
             className="text-zinc-400 hover:text-white p-1 rounded-md hover:bg-zinc-900 transition-colors"
+            aria-label={t("cancel")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -135,12 +153,12 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               htmlFor="user-name"
               className="text-xs font-medium text-zinc-400"
             >
-              Name *
+              {t("nameLabel")}
             </label>
             <input
               id="user-name"
               type="text"
-              placeholder="e.g. John Doe"
+              placeholder={t("namePlaceholder")}
               className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                 errors.name
                   ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
@@ -163,12 +181,13 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               htmlFor="user-email"
               className="text-xs font-medium text-zinc-400"
             >
-              Email Address *
+              {t("emailLabel")}
             </label>
             <input
               id="user-email"
               type="email"
-              placeholder="e.g. user@vault.local"
+              placeholder={t("emailPlaceholder")}
+              dir="ltr"
               className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                 errors.email
                   ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
@@ -191,7 +210,7 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               htmlFor="user-role"
               className="text-xs font-medium text-zinc-400"
             >
-              System Role *
+              {t("roleLabel")}
             </label>
             <select
               id="user-role"
@@ -205,9 +224,9 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               disabled={isPending}
               {...register("role")}
             >
-              <option value="SUPER_ADMIN">Super Admin (Full Access)</option>
-              <option value="EDITOR">Editor (Can Read/Write Secrets)</option>
-              <option value="VIEWER">Viewer (Can Only View Secrets)</option>
+              <option value="SUPER_ADMIN">{t("roleSuperAdmin")}</option>
+              <option value="EDITOR">{t("roleEditor")}</option>
+              <option value="VIEWER">{t("roleViewer")}</option>
             </select>
             {errors.role && (
               <p className="text-xs text-red-400 mt-1">
@@ -221,15 +240,17 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               htmlFor="user-password"
               className="text-xs font-medium text-zinc-400"
             >
-              Password{" "}
-              {mode === "create" ? "*" : "(leave blank to keep current)"}
+              {t("passwordLabel")}{" "}
+              {mode === "create"
+                ? t("passwordRequiredHint")
+                : t("passwordOptionalHint")}
             </label>
             <div className="relative">
               <input
                 id="user-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className={`w-full bg-zinc-900 border rounded-lg pl-3 pr-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
+                className={`w-full bg-zinc-900 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                   errors.password
                     ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
                     : passwordValue
@@ -242,7 +263,7 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-zinc-400 hover:text-white"
+                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white"
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -275,7 +296,7 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
                 htmlFor="forcePasswordChange"
                 className="text-xs text-zinc-300 cursor-pointer select-none"
               >
-                Force password change on next login
+                {t("forceChangeLabel")}
               </label>
             </div>
           )}
@@ -288,7 +309,7 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               className="text-xs border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-white"
               disabled={isPending}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="submit"
@@ -296,10 +317,10 @@ export function UserForm({ mode, user, onClose, onSuccess }: UserFormProps) {
               disabled={isPending}
             >
               {isPending
-                ? "Saving..."
+                ? t("saving")
                 : mode === "create"
-                  ? "Add User"
-                  : "Update User"}
+                  ? t("addButton")
+                  : t("updateButton")}
             </Button>
           </div>
         </form>

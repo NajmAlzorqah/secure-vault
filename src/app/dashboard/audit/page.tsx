@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -14,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { intlLocaleFor } from "@/i18n/config";
 import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -38,6 +40,10 @@ export default async function AuditPage() {
   // Only SUPER_ADMIN can view security audit logs
   await requireRole(["SUPER_ADMIN"]);
 
+  const t = await getTranslations("audit");
+  const ta = await getTranslations("auditActions");
+  const locale = await getLocale();
+
   // Fetch latest 100 audit logs
   const logs = await db.auditLog.findMany({
     take: 100,
@@ -52,20 +58,15 @@ export default async function AuditPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white">
-          Security Audit Logs
+          {t("title")}
         </h1>
-        <p className="text-muted-foreground">
-          Immutable security audit logs tracing all administrative activities.
-        </p>
+        <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">System Audit Log Trail</CardTitle>
-          <CardDescription>
-            Displays the latest 100 events. Logs are append-only to satisfy
-            InfoSec integrity requirements.
-          </CardDescription>
+          <CardTitle className="text-lg">{t("trailTitle")}</CardTitle>
+          <CardDescription>{t("trailDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border border-border/40 overflow-hidden bg-background/25">
@@ -73,22 +74,22 @@ export default async function AuditPage() {
               <TableHeader className="bg-muted/40">
                 <TableRow className="hover:bg-transparent border-border/40">
                   <TableHead className="text-gray-300 font-medium">
-                    Timestamp
+                    {t("colTimestamp")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    User
+                    {t("colUser")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Security Action
+                    {t("colAction")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Details
+                    {t("colDetails")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    IP Address
+                    {t("colIp")}
                   </TableHead>
                   <TableHead className="text-gray-300 font-medium">
-                    Browser / User Agent
+                    {t("colUserAgent")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -99,7 +100,7 @@ export default async function AuditPage() {
                       colSpan={6}
                       className="h-32 text-center text-muted-foreground"
                     >
-                      No security logs recorded.
+                      {t("noLogs")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -109,19 +110,24 @@ export default async function AuditPage() {
                       className="hover:bg-muted/20 border-border/20"
                     >
                       <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                        {new Date(log.timestamp).toLocaleString()}
+                        {new Date(log.timestamp).toLocaleString(
+                          intlLocaleFor(locale),
+                        )}
                       </TableCell>
                       <TableCell className="font-semibold text-white">
                         {log.user ? (
                           <div>
                             <p className="text-xs">{log.user.name}</p>
-                            <p className="text-[10px] text-muted-foreground">
+                            <p
+                              className="text-[10px] text-muted-foreground"
+                              dir="ltr"
+                            >
                               {log.user.email}
                             </p>
                           </div>
                         ) : (
                           <span className="text-muted-foreground text-xs italic">
-                            System / Unknown
+                            {t("systemUnknown")}
                           </span>
                         )}
                       </TableCell>
@@ -129,13 +135,15 @@ export default async function AuditPage() {
                         <Badge
                           className={`border text-[10px] ${actionColors[log.action] ?? "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}
                         >
-                          {log.action.replace(/_/g, " ")}
+                          {ta(log.action)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs text-gray-300 max-w-[250px]">
                         {log.details ||
                           (log.target
-                            ? `Credential: ${log.target.title}`
+                            ? t("credentialPrefix", {
+                                title: log.target.title,
+                              })
                             : "—")}
                       </TableCell>
                       <TableCell className="font-mono text-xs text-gray-400">

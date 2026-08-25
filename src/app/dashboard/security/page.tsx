@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { SecurityDashboardClient } from "@/components/dashboard/SecurityDashboardClient";
 import { requireRole } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -7,6 +8,8 @@ export const dynamic = "force-dynamic";
 
 export default async function SecurityPage() {
   await requireRole(["SUPER_ADMIN"]);
+
+  const tc = await getTranslations("common");
 
   const settings = await getSecuritySettings();
 
@@ -70,7 +73,7 @@ export default async function SecurityPage() {
         id: log.id,
         action: log.action,
         details: log.details,
-        userEmail: log.user?.email ?? "Unknown",
+        userEmail: log.user?.email ?? tc("unknown"),
         timestamp: log.timestamp.toISOString(),
         ipAddress: log.ipAddress,
       }))}

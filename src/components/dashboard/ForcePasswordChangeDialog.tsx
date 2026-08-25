@@ -3,7 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2, ShieldAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { forceChangePassword, type UserState } from "@/app/actions/users";
 import type { SecuritySettingsData } from "@/lib/security-settings";
@@ -22,6 +23,8 @@ interface PasswordForm {
 export function ForcePasswordChangeDialog({
   settings,
 }: ForcePasswordChangeDialogProps) {
+  const t = useTranslations("forceChange");
+  const tv = useTranslations("validation");
   const [serverState, setServerState] = useState<UserState | undefined>(
     undefined,
   );
@@ -31,7 +34,10 @@ export function ForcePasswordChangeDialog({
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
 
-  const schema = getChangePasswordSchema(settings);
+  const schema = useMemo(
+    () => getChangePasswordSchema(settings)(tv),
+    [settings, tv],
+  );
 
   const {
     register,
@@ -78,13 +84,8 @@ export function ForcePasswordChangeDialog({
           <div className="inline-flex p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
             <ShieldAlert className="h-8 w-8 text-amber-400" />
           </div>
-          <h2 className="text-xl font-bold text-white">
-            Password Change Required
-          </h2>
-          <p className="text-sm text-zinc-400">
-            Your password has expired or an administrator has requested a
-            password change. Please set a new password to continue.
-          </p>
+          <h2 className="text-xl font-bold text-white">{t("title")}</h2>
+          <p className="text-sm text-zinc-400">{t("description")}</p>
         </div>
 
         {/* Server message */}
@@ -108,15 +109,15 @@ export function ForcePasswordChangeDialog({
               htmlFor="fp-currentPassword"
               className="text-xs font-medium text-zinc-400"
             >
-              Current Password
+              {t("currentPassword")}
             </label>
             <div className="relative">
               <input
                 id="fp-currentPassword"
                 type={showCurrent ? "text" : "password"}
                 autoComplete="current-password"
-                placeholder="Enter current password"
-                className={`w-full bg-zinc-950 border rounded-lg pl-3 pr-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
+                placeholder={t("currentPlaceholder")}
+                className={`w-full bg-zinc-950 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                   errors.currentPassword
                     ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
                     : currentPasswordValue
@@ -129,7 +130,7 @@ export function ForcePasswordChangeDialog({
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
                 tabIndex={-1}
               >
                 {showCurrent ? (
@@ -152,15 +153,15 @@ export function ForcePasswordChangeDialog({
               htmlFor="fp-newPassword"
               className="text-xs font-medium text-zinc-400"
             >
-              New Password
+              {t("newPassword")}
             </label>
             <div className="relative">
               <input
                 id="fp-newPassword"
                 type={showNew ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="Enter new password"
-                className={`w-full bg-zinc-950 border rounded-lg pl-3 pr-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
+                placeholder={t("newPlaceholder")}
+                className={`w-full bg-zinc-950 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                   errors.newPassword
                     ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
                     : newPasswordValue
@@ -173,7 +174,7 @@ export function ForcePasswordChangeDialog({
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
                 tabIndex={-1}
               >
                 {showNew ? (
@@ -196,15 +197,15 @@ export function ForcePasswordChangeDialog({
               htmlFor="fp-confirmPassword"
               className="text-xs font-medium text-zinc-400"
             >
-              Confirm New Password
+              {t("confirmPassword")}
             </label>
             <div className="relative">
               <input
                 id="fp-confirmPassword"
                 type={showConfirm ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="Confirm new password"
-                className={`w-full bg-zinc-950 border rounded-lg pl-3 pr-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
+                placeholder={t("confirmPlaceholder")}
+                className={`w-full bg-zinc-950 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                   errors.confirmPassword
                     ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
                     : confirmPasswordValue
@@ -217,7 +218,7 @@ export function ForcePasswordChangeDialog({
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
                 tabIndex={-1}
               >
                 {showConfirm ? (
@@ -242,17 +243,15 @@ export function ForcePasswordChangeDialog({
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Updating Password...
+                {t("updating")}
               </>
             ) : (
-              "Update Password"
+              t("updatePassword")
             )}
           </button>
         </form>
 
-        <p className="text-center text-[10px] text-zinc-500">
-          You must change your password before continuing.
-        </p>
+        <p className="text-center text-[10px] text-zinc-500">{t("footer")}</p>
       </div>
     </div>
   );

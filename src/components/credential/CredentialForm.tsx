@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, X } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import {
   type CredentialState,
@@ -13,9 +14,8 @@ import { Button } from "@/components/ui/button";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import {
   type CreateCredentialInput,
-  createCredentialSchema,
-  type UpdateCredentialInput,
-  updateCredentialSchema,
+  getCreateCredentialSchema,
+  getUpdateCredentialSchema,
 } from "@/lib/validations";
 import { PasswordGenerator } from "./PasswordGenerator";
 import { PasswordStrength } from "./PasswordStrength";
@@ -40,6 +40,9 @@ export function CredentialForm({
   onClose,
   onSuccess,
 }: CredentialFormProps) {
+  const t = useTranslations("credentialForm");
+  const tc = useTranslations("common");
+  const tv = useTranslations("validation");
   const action = mode === "create" ? createCredential : updateCredential;
   const [serverState, setServerState] = useState<CredentialState | undefined>(
     undefined,
@@ -47,8 +50,13 @@ export function CredentialForm({
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
 
-  const schema =
-    mode === "create" ? createCredentialSchema : updateCredentialSchema;
+  const schema = useMemo(
+    () =>
+      mode === "create"
+        ? getCreateCredentialSchema(tv)
+        : getUpdateCredentialSchema(tv),
+    [mode, tv],
+  );
 
   const {
     register,
@@ -129,12 +137,13 @@ export function CredentialForm({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
           <h3 className="text-lg font-semibold text-white">
-            {mode === "create" ? "Add Credential" : "Edit Credential"}
+            {mode === "create" ? t("addTitle") : t("editTitle")}
           </h3>
           <button
             type="button"
             onClick={onClose}
             className="text-zinc-400 hover:text-white p-1 rounded-md hover:bg-zinc-900 transition-colors"
+            aria-label={tc("cancel")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -156,12 +165,12 @@ export function CredentialForm({
                 htmlFor="cred-title"
                 className="text-xs font-medium text-zinc-400"
               >
-                Title *
+                {t("titleLabel")}
               </label>
               <input
                 id="cred-title"
                 type="text"
-                placeholder="e.g. Production Database"
+                placeholder={t("titlePlaceholder")}
                 className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                   errors.title
                     ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
@@ -184,12 +193,12 @@ export function CredentialForm({
                 htmlFor="cred-category"
                 className="text-xs font-medium text-zinc-400"
               >
-                Category
+                {t("categoryLabel")}
               </label>
               <input
                 id="cred-category"
                 type="text"
-                placeholder="e.g. Databases, Cloud"
+                placeholder={t("categoryPlaceholder")}
                 className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                   errors.category
                     ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
@@ -213,12 +222,13 @@ export function CredentialForm({
               htmlFor="cred-username"
               className="text-xs font-medium text-zinc-400"
             >
-              Username *
+              {t("usernameLabel")}
             </label>
             <input
               id="cred-username"
               type="text"
-              placeholder="e.g. admin@example.com"
+              placeholder={t("usernamePlaceholder")}
+              dir="ltr"
               className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                 errors.username
                   ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
@@ -241,16 +251,18 @@ export function CredentialForm({
               htmlFor="cred-password"
               className="text-xs font-medium text-zinc-400"
             >
-              Password *
+              {t("passwordLabel")}
             </label>
             <div className="relative">
               <input
                 id="cred-password"
                 type={showPassword ? "text" : "password"}
                 placeholder={
-                  mode === "edit" ? "Enter new password" : "Enter password"
+                  mode === "edit"
+                    ? t("passwordEditPlaceholder")
+                    : t("passwordCreatePlaceholder")
                 }
-                className={`w-full bg-zinc-900 border rounded-lg pl-3 pr-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
+                className={`w-full bg-zinc-900 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                   errors.password
                     ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
                     : passwordValue
@@ -263,7 +275,7 @@ export function CredentialForm({
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-zinc-400 hover:text-white"
+                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white"
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -300,12 +312,13 @@ export function CredentialForm({
               htmlFor="cred-url"
               className="text-xs font-medium text-zinc-400"
             >
-              URL
+              {t("urlLabel")}
             </label>
             <input
               id="cred-url"
               type="text"
-              placeholder="https://example.com"
+              placeholder={t("urlPlaceholder")}
+              dir="ltr"
               className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
                 errors.url
                   ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
@@ -328,12 +341,12 @@ export function CredentialForm({
               htmlFor="cred-notes"
               className="text-xs font-medium text-zinc-400"
             >
-              Notes
+              {t("notesLabel")}
             </label>
             <textarea
               id="cred-notes"
               rows={3}
-              placeholder="Additional notes..."
+              placeholder={t("notesPlaceholder")}
               className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 resize-y min-h-[80px] ${
                 errors.notes
                   ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
@@ -359,7 +372,7 @@ export function CredentialForm({
               className="text-xs border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-white"
               disabled={isPending}
             >
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button
               type="submit"
@@ -367,10 +380,10 @@ export function CredentialForm({
               disabled={isPending}
             >
               {isPending
-                ? "Saving..."
+                ? tc("saving")
                 : mode === "create"
-                  ? "Add Credential"
-                  : "Update Credential"}
+                  ? t("addButton")
+                  : t("updateButton")}
             </Button>
           </div>
         </form>

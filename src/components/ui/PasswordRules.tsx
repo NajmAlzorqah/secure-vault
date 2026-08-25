@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 export type RuleId =
@@ -31,13 +32,15 @@ export function PasswordRules({
   enabledRules,
   settings,
 }: PasswordRulesProps) {
+  const t = useTranslations("rules");
+
   const rules = useMemo(() => {
     // If settings are provided, build rules dynamically
     if (settings) {
       const allRules = [
         {
           id: "length" as RuleId,
-          label: `At least ${settings.minimumPasswordLength} characters`,
+          label: t("length", { count: settings.minimumPasswordLength }),
           test: (p: string) => p.length >= settings.minimumPasswordLength,
         },
       ];
@@ -45,28 +48,28 @@ export function PasswordRules({
       if (settings.requireUppercase) {
         allRules.push({
           id: "uppercase" as RuleId,
-          label: "At least one uppercase letter",
+          label: t("uppercase"),
           test: (p: string) => /[A-Z]/.test(p),
         });
       }
       if (settings.requireLowercase) {
         allRules.push({
           id: "lowercase" as RuleId,
-          label: "At least one lowercase letter",
+          label: t("lowercase"),
           test: (p: string) => /[a-z]/.test(p),
         });
       }
       if (settings.requireNumber) {
         allRules.push({
           id: "number" as RuleId,
-          label: "At least one number",
+          label: t("number"),
           test: (p: string) => /[0-9]/.test(p),
         });
       }
       if (settings.requireSpecialChar) {
         allRules.push({
           id: "special" as RuleId,
-          label: "At least one special character",
+          label: t("special"),
           test: (p: string) => /[^a-zA-Z0-9]/.test(p),
         });
       }
@@ -84,33 +87,33 @@ export function PasswordRules({
     const allRules = [
       {
         id: "required" as RuleId,
-        label: "Password is required",
+        label: t("required"),
         met: password.length >= 1,
       },
       {
         id: "length" as RuleId,
-        label: "At least 12 characters",
+        label: t("length", { count: 12 }),
         met: password.length >= 12,
       },
       {
         id: "letter" as RuleId,
-        label: "At least one letter",
+        label: t("letter"),
         met: /[a-zA-Z]/.test(password),
       },
       {
         id: "number" as RuleId,
-        label: "At least one number",
+        label: t("number"),
         met: /[0-9]/.test(password),
       },
       {
         id: "special" as RuleId,
-        label: "At least one special character",
+        label: t("special"),
         met: /[^a-zA-Z0-9]/.test(password),
       },
     ];
 
     return allRules.filter((rule) => activeRules.includes(rule.id));
-  }, [password, enabledRules, settings]);
+  }, [password, enabledRules, settings, t]);
 
   const hasStartedTyping = password.length > 0;
 
@@ -125,10 +128,8 @@ export function PasswordRules({
   return (
     <div className="mt-2 p-3 bg-zinc-950/40 border border-zinc-800/80 rounded-lg space-y-2.5 transition-all duration-300 animate-in fade-in slide-in-from-top-1">
       <div className="flex justify-between items-center text-[10px] text-zinc-400 font-medium">
-        <span>Password Requirements</span>
-        <span>
-          {metCount}/{rules.length} Met
-        </span>
+        <span>{t("title")}</span>
+        <span>{t("metCount", { met: metCount, total: rules.length })}</span>
       </div>
 
       {/* Progress Bar */}

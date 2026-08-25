@@ -1,4 +1,9 @@
-ignoredBuiltDependencies:
-  - esbuild
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  '@parcel/watcher': false
+  '@prisma/engines': true
+  '@swc/core': false
+  bcrypt: true
+  esbuild: true
+  prisma: true
+  sharp: true
+verifyDepsBeforeRun: false

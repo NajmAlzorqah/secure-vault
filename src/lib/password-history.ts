@@ -33,12 +33,13 @@ export async function checkPasswordHistory(
 /**
  * Validates that the new plaintext password doesn't match any recent hashes.
  * Must be called with the plaintext password (before hashing).
+ * Returns historyCount so callers can build a localized message.
  */
 export async function isPasswordReused(
   userId: string,
   newPassword: string,
   settings: SecuritySettingsData,
-): Promise<{ reused: boolean; message?: string }> {
+): Promise<{ reused: boolean; historyCount?: number }> {
   if (settings.passwordHistory <= 0) {
     return { reused: false };
   }
@@ -62,7 +63,7 @@ export async function isPasswordReused(
     if (matches) {
       return {
         reused: true,
-        message: `Cannot reuse the last ${settings.passwordHistory} password${settings.passwordHistory === 1 ? "" : "s"}`,
+        historyCount: settings.passwordHistory,
       };
     }
   }

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -38,6 +39,7 @@ interface SettingsForm {
 export function SecuritySettingsClient({
   settings,
 }: SecuritySettingsClientProps) {
+  const t = useTranslations("securitySettings");
   const [serverState, setServerState] = useState<
     SecuritySettingsState | undefined
   >(undefined);
@@ -87,11 +89,9 @@ export function SecuritySettingsClient({
     <div className="space-y-6 max-w-4xl">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-white">
-          Security Settings
+          {t("title")}
         </h1>
-        <p className="text-zinc-400">
-          Configure password policies, lockout rules, and security requirements.
-        </p>
+        <p className="text-zinc-400">{t("subtitle")}</p>
       </div>
 
       {/* Status message */}
@@ -113,23 +113,21 @@ export function SecuritySettingsClient({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-emerald-400" />
-              Password Policy
+              {t("passwordPolicyTitle")}
             </CardTitle>
-            <CardDescription>
-              Configure password complexity and history requirements.
-            </CardDescription>
+            <CardDescription>{t("passwordPolicyDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <NumberField
-                label="Minimum Password Length"
+                label={t("minLength")}
                 field="minimumPasswordLength"
                 register={register}
                 min={12}
                 max={64}
               />
               <NumberField
-                label="Password History (remember last N)"
+                label={t("history")}
                 field="passwordHistory"
                 register={register}
                 min={0}
@@ -139,26 +137,26 @@ export function SecuritySettingsClient({
 
             <div className="space-y-2">
               <p className="text-xs text-zinc-400 font-medium">
-                Character Requirements
+                {t("charRequirements")}
               </p>
               <div className="grid grid-cols-2 gap-2">
                 <CheckboxField
-                  label="Require uppercase letters"
+                  label={t("requireUppercase")}
                   field="requireUppercase"
                   register={register}
                 />
                 <CheckboxField
-                  label="Require lowercase letters"
+                  label={t("requireLowercase")}
                   field="requireLowercase"
                   register={register}
                 />
                 <CheckboxField
-                  label="Require numbers"
+                  label={t("requireNumbers")}
                   field="requireNumber"
                   register={register}
                 />
                 <CheckboxField
-                  label="Require special characters"
+                  label={t("requireSpecial")}
                   field="requireSpecialChar"
                   register={register}
                 />
@@ -172,23 +170,21 @@ export function SecuritySettingsClient({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-amber-400" />
-              Lockout Policy
+              {t("lockoutPolicyTitle")}
             </CardTitle>
-            <CardDescription>
-              Configure account lockout duration and failed attempt thresholds.
-            </CardDescription>
+            <CardDescription>{t("lockoutPolicyDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <NumberField
-                label="Max Failed Attempts (before lock)"
+                label={t("maxFailedAttempts")}
                 field="maxFailedAttempts"
                 register={register}
                 min={1}
                 max={50}
               />
               <NumberField
-                label="Lock Duration (minutes)"
+                label={t("lockDuration")}
                 field="lockDuration"
                 register={register}
                 min={1}
@@ -203,15 +199,15 @@ export function SecuritySettingsClient({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-blue-400" />
-              Expiration Policy
+              {t("expirationPolicyTitle")}
             </CardTitle>
             <CardDescription>
-              Configure when users are forced to change their passwords.
+              {t("expirationPolicyDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <NumberField
-              label="Password Expiration (days, 0 = never)"
+              label={t("expirationDays")}
               field="expirationDays"
               register={register}
               min={0}
@@ -230,12 +226,12 @@ export function SecuritySettingsClient({
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
+                {t("saving")}
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                Save Settings
+                {t("save")}
               </>
             )}
           </Button>

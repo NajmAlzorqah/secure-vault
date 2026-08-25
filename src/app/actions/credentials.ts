@@ -2,14 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { logAudit } from "@/lib/audit";
-import { requireRole, verifySession } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 import { encrypt } from "@/lib/crypto";
 import { db } from "@/lib/db";
 import {
-  createCredentialSchema,
+  getCreateCredentialSchema,
+  getUpdateCredentialSchema,
   idSchema,
-  updateCredentialSchema,
 } from "@/lib/validations";
 
 export interface CredentialState {
@@ -29,13 +30,17 @@ async function getClientInfo() {
 }
 
 export async function createCredential(
-  prevState: CredentialState | undefined,
+  _prevState: CredentialState | undefined,
   formData: FormData,
 ): Promise<CredentialState> {
   const session = await requireRole(["SUPER_ADMIN", "EDITOR"]);
   const { ipAddress, userAgent } = await getClientInfo();
 
-  const parsed = createCredentialSchema.safeParse({
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+
+  const schema = getCreateCredentialSchema(tv);
+  const parsed = schema.safeParse({
     title: formData.get("title"),
     username: formData.get("username"),
     password: formData.get("password"),
@@ -81,28 +86,32 @@ export async function createCredential(
   revalidatePath("/dashboard/vault");
   revalidatePath("/dashboard");
 
-  return { success: true, message: "Credential created successfully." };
+  return { success: true, message: t("credentialCreated") };
 }
 
 export async function updateCredential(
-  prevState: CredentialState | undefined,
+  _prevState: CredentialState | undefined,
   formData: FormData,
 ): Promise<CredentialState> {
   const session = await requireRole(["SUPER_ADMIN", "EDITOR"]);
   const { ipAddress, userAgent } = await getClientInfo();
 
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+
   const id = formData.get("id") as string;
   if (!id) {
-    return { message: "Credential ID is required." };
+    return { message: t("credentialIdRequired") };
   }
 
   // Verify credential exists
   const existing = await db.credential.findUnique({ where: { id } });
   if (!existing) {
-    return { message: "Credential not found." };
+    return { message: t("credentialNotFound") };
   }
 
-  const parsed = updateCredentialSchema.safeParse({
+  const schema = getUpdateCredentialSchema(tv);
+  const parsed = schema.safeParse({
     title: formData.get("title"),
     username: formData.get("username"),
     password: formData.get("password"),
@@ -151,21 +160,23 @@ export async function updateCredential(
   revalidatePath("/dashboard/vault");
   revalidatePath("/dashboard");
 
-  return { success: true, message: "Credential updated successfully." };
+  return { success: true, message: t("credentialUpdated") };
 }
 
 export async function deleteCredential(id: string): Promise<CredentialState> {
   const session = await requireRole(["SUPER_ADMIN", "EDITOR"]);
   const { ipAddress, userAgent } = await getClientInfo();
 
+  const t = await getTranslations("serverActions");
+
   const parsed = idSchema.safeParse({ id });
   if (!parsed.success) {
-    return { message: "Invalid credential ID format." };
+    return { message: t("credentialIdInvalid") };
   }
 
   const credential = await db.credential.findUnique({ where: { id } });
   if (!credential) {
-    return { message: "Credential not found." };
+    return { message: t("credentialNotFound") };
   }
 
   await db.credential.delete({ where: { id } });
@@ -182,5 +193,5 @@ export async function deleteCredential(id: string): Promise<CredentialState> {
   revalidatePath("/dashboard/vault");
   revalidatePath("/dashboard");
 
-  return { success: true, message: "Credential deleted successfully." };
+  return { success: true, message: t("credentialDeleted") };
 }

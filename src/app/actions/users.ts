@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { logAudit } from "@/lib/audit";
 import {
   hashPassword,
@@ -47,8 +48,11 @@ export async function createUser(
   const { ipAddress, userAgent } = await getClientInfo();
   const settings = await getSecuritySettings();
 
-  const createUserSchema = getCreateUserSchema(settings);
-  const parsed = createUserSchema.safeParse({
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+
+  const schema = getCreateUserSchema(settings)(tv);
+  const parsed = schema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
@@ -64,7 +68,7 @@ export async function createUser(
   // Check for duplicate email
   const existing = await db.user.findUnique({ where: { email } });
   if (existing) {
-    return { message: "A user with this email already exists." };
+    return { message: t("userExists") };
   }
 
   const passwordHash = await hashPassword(password);
@@ -93,7 +97,7 @@ export async function createUser(
   revalidatePath("/dashboard/users");
   revalidatePath("/dashboard");
 
-  return { success: true, message: `User ${email} created successfully.` };
+  return { success: true, message: t("userCreated", { email }) };
 }
 
 export async function updateUser(
@@ -104,8 +108,11 @@ export async function updateUser(
   const { ipAddress, userAgent } = await getClientInfo();
   const settings = await getSecuritySettings();
 
-  const updateUserSchema = getUpdateUserSchema(settings);
-  const parsed = updateUserSchema.safeParse({
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+
+  const schema = getUpdateUserSchema(settings)(tv);
+  const parsed = schema.safeParse({
     id: formData.get("id"),
     name: formData.get("name"),
     email: formData.get("email"),
@@ -122,14 +129,14 @@ export async function updateUser(
 
   const existing = await db.user.findUnique({ where: { id } });
   if (!existing) {
-    return { message: "User not found." };
+    return { message: t("userNotFound") };
   }
 
   // Check for duplicate email (if changed)
   if (email && email !== existing.email) {
     const emailTaken = await db.user.findUnique({ where: { email } });
     if (emailTaken) {
-      return { message: "A user with this email already exists." };
+      return { message: t("userExists") };
     }
   }
 
@@ -146,7 +153,11 @@ export async function updateUser(
     // Check password history for the target user
     const historyCheck = await isPasswordReused(id, password, settings);
     if (historyCheck.reused) {
-      return { message: historyCheck.message };
+      return {
+        message: tv("passwordReuse", {
+          count: historyCheck.historyCount ?? settings.passwordHistory,
+        }),
+      };
     }
 
     const newHash = await hashPassword(password);
@@ -171,26 +182,28 @@ export async function updateUser(
 
   revalidatePath("/dashboard/users");
 
-  return { success: true, message: "User updated successfully." };
+  return { success: true, message: t("userUpdated") };
 }
 
 export async function deleteUser(id: string): Promise<UserState> {
   const session = await requireRole(["SUPER_ADMIN"]);
   const { ipAddress, userAgent } = await getClientInfo();
 
+  const t = await getTranslations("serverActions");
+
   const parsed = idSchema.safeParse({ id });
   if (!parsed.success) {
-    return { message: "Invalid user ID format." };
+    return { message: t("userIdInvalid") };
   }
 
   // Prevent self-deletion
   if (id === session.userId) {
-    return { message: "You cannot delete your own account." };
+    return { message: t("selfDeleteForbidden") };
   }
 
   const user = await db.user.findUnique({ where: { id } });
   if (!user) {
-    return { message: "User not found." };
+    return { message: t("userNotFound") };
   }
 
   await db.user.delete({ where: { id } });
@@ -206,7 +219,7 @@ export async function deleteUser(id: string): Promise<UserState> {
   revalidatePath("/dashboard/users");
   revalidatePath("/dashboard");
 
-  return { success: true, message: `User ${user.email} deleted.` };
+  return { success: true, message: t("userDeleted", { email: user.email }) };
 }
 
 export async function changePassword(
@@ -217,8 +230,11 @@ export async function changePassword(
   const { ipAddress, userAgent } = await getClientInfo();
   const settings = await getSecuritySettings();
 
-  const changePasswordSchema = getChangePasswordSchema(settings);
-  const parsed = changePasswordSchema.safeParse({
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+
+  const schema = getChangePasswordSchema(settings)(tv);
+  const parsed = schema.safeParse({
     currentPassword: formData.get("currentPassword"),
     newPassword: formData.get("newPassword"),
     confirmPassword: formData.get("confirmPassword"),
@@ -237,12 +253,12 @@ export async function changePassword(
   });
 
   if (!user) {
-    return { message: "User not found." };
+    return { message: t("userNotFound") };
   }
 
   const isValid = await verifyPassword(currentPassword, user.passwordHash);
   if (!isValid) {
-    return { message: "Current password is incorrect." };
+    return { message: t("currentPasswordIncorrect") };
   }
 
   // Check password history
@@ -252,7 +268,11 @@ export async function changePassword(
     settings,
   );
   if (historyCheck.reused) {
-    return { message: historyCheck.message };
+    return {
+      message: tv("passwordReuse", {
+        count: historyCheck.historyCount ?? settings.passwordHistory,
+      }),
+    };
   }
 
   // Update password and invalidate all existing sessions
@@ -281,7 +301,7 @@ export async function changePassword(
   // Force re-login after password change for security
   await deleteSession();
 
-  return { success: true, message: "Password changed. Please log in again." };
+  return { success: true, message: t("passwordChangedRelogin") };
 }
 
 /**
@@ -297,7 +317,10 @@ export async function forceChangePassword(
   const { ipAddress, userAgent } = await getClientInfo();
   const settings = await getSecuritySettings();
 
-  const schema = getChangePasswordSchema(settings);
+  const t = await getTranslations("serverActions");
+  const tv = await getTranslations("validation");
+
+  const schema = getChangePasswordSchema(settings)(tv);
   const parsed = schema.safeParse({
     currentPassword: formData.get("currentPassword"),
     newPassword: formData.get("newPassword"),
@@ -316,12 +339,12 @@ export async function forceChangePassword(
   });
 
   if (!user) {
-    return { message: "User not found." };
+    return { message: t("userNotFound") };
   }
 
   const isValid = await verifyPassword(currentPassword, user.passwordHash);
   if (!isValid) {
-    return { message: "Current password is incorrect." };
+    return { message: t("currentPasswordIncorrect") };
   }
 
   const historyCheck = await isPasswordReused(
@@ -330,7 +353,11 @@ export async function forceChangePassword(
     settings,
   );
   if (historyCheck.reused) {
-    return { message: historyCheck.message };
+    return {
+      message: tv("passwordReuse", {
+        count: historyCheck.historyCount ?? settings.passwordHistory,
+      }),
+    };
   }
 
   const newHash = await hashPassword(newPassword);
@@ -355,5 +382,5 @@ export async function forceChangePassword(
 
   revalidatePath("/dashboard");
 
-  return { success: true, message: "Password changed successfully." };
+  return { success: true, message: t("passwordChangedSuccess") };
 }
