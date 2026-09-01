@@ -113,7 +113,7 @@ export default function ForgotPasswordPage() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="admin@vault.local"
+                  placeholder="najm@gmail.com"
                   dir="ltr"
                   className={`w-full bg-zinc-950 border rounded-lg ps-10 pe-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
                     errors.email

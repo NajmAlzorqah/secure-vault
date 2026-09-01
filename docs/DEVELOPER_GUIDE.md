@@ -39,7 +39,9 @@ pnpm db:seed
 pnpm dev
 ```
 
-Default admin: `admin@vault.local` / `Admin@2024!Secure`
+Default super admin: `najm@gmail.com` / `Powernjm1*23`
+
+The seed resets all tables deterministically and creates a demo team (Arabic names) with 30 credentials for real 2026 dev services. All seeded login passwords are printed to the terminal.
 
 ---
 

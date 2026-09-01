@@ -394,9 +394,11 @@ SecureVault translates these design parameters into distinct implementation modu
    pnpm db:push
    pnpm db:seed
    ```
-   *Seeded Admin Account:*
-   * **Email:** `admin@vault.local`
-   * **Password:** `Admin@2024!Secure`
+   *Seeded Super Admin Account:*
+   * **Email:** `najm@gmail.com`
+   * **Password:** `Powernjm1*23`
+
+   The seed is fully reset on each run and provisions 7 users (Arabic names), 30 credentials across 7 categories, password history, and a realistic audit trail.
 
 4. **Starting Next.js Server:**
    ```bash

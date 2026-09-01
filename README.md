@@ -431,9 +431,11 @@ pnpm db:push     # Push schema + setup triggers
 pnpm db:seed     # Seed admin user + security settings
 ```
 
-**Default Admin Credentials:**
-- Email: `admin@vault.local`
-- Password: `Admin@2024!Secure`
+**Default Super Admin Credentials:**
+- Email: `najm@gmail.com`
+- Password: `Powernjm1*23`
+
+The seed also provisions a full demo team (Arabic names, `@waha.sa` emails) plus 30 credentials for real 2026 dev services (AWS, Vercel, Cloudflare, GitHub, Terraform Cloud, Datadog, Sentry, Stripe, OpenAI …). Seeded login passwords are printed to the terminal on each run.
 
 ### 4. Start Development Server
 

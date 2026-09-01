@@ -244,7 +244,7 @@
     "nameLabel": "الاسم *",
     "namePlaceholder": "مثال: أحمد محمد",
     "emailLabel": "البريد الإلكتروني *",
-    "emailPlaceholder": "مثال: user@vault.local",
+    "emailPlaceholder": "مثال: najm@gmail.com",
     "roleLabel": "دور النظام *",
     "roleSuperAdmin": "مدير عام (وصول كامل)",
     "roleEditor": "محرر (قراءة/كتابة الأسرار)",

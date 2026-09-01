@@ -216,8 +216,10 @@ export function VaultClient({
                       key={cred.id}
                       className="hover:bg-muted/20 border-border/20"
                     >
-                      <TableCell className="font-semibold text-white">
-                        {cred.title}
+                      <TableCell className="font-semibold text-white max-w-[240px]">
+                        <div className="truncate" title={cred.title}>
+                          {cred.title}
+                        </div>
                         {cred.notes && (
                           <p className="text-xs text-muted-foreground font-normal line-clamp-1 mt-0.5">
                             {cred.notes}

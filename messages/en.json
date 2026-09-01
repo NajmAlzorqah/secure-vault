@@ -244,7 +244,7 @@
     "nameLabel": "Name *",
     "namePlaceholder": "e.g. John Doe",
     "emailLabel": "Email Address *",
-    "emailPlaceholder": "e.g. user@vault.local",
+    "emailPlaceholder": "e.g. najm@gmail.com",
     "roleLabel": "System Role *",
     "roleSuperAdmin": "Super Admin (Full Access)",
     "roleEditor": "Editor (Can Read/Write Secrets)",
