@@ -1,0 +1,237 @@
+{
+  "nodes": [
+    {
+      "id": "docs_developer_guide_guide",
+      "label": "SecureVault Developer Guide",
+      "file_type": "document",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_prisma_connection_pattern",
+      "label": "Prisma 7 Connection Pattern (PrismaPg Adapter)",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_server_action_convention",
+      "label": "Server Action Convention ((prevState, formData) + useActionState)",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_dynamic_zod_schemas",
+      "label": "Dynamic Zod Schemas from SecuritySettings",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_auth_flow",
+      "label": "Authentication Flow (login, createSession, verifySession)",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_rbac_helpers",
+      "label": "RBAC Enforcement Helpers (verifySession / requireRole)",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_settings_cache",
+      "label": "SecuritySettings Caching Pattern (Module Cache + clearSettingsCache)",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_audit_helper",
+      "label": "Audit Logging Helper (logAudit) Convention",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_uuid_arg_bug",
+      "label": "Troubleshooting: UUID Argument Order in recordFailedAttempt",
+      "file_type": "concept",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_guide_infinite_redirect_fix",
+      "label": "Design Decision: Dialog Overlay Instead of Layout Redirect",
+      "file_type": "rationale",
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_developer_guide_guide",
+      "target": "readme_securevault",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_prisma_connection_pattern",
+      "target": "readme_prisma_orm",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_server_action_convention",
+      "target": "readme_server_actions",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_dynamic_zod_schemas",
+      "target": "docs_project_documentation_get_password_validation_string",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_auth_flow",
+      "target": "docs_system_flows_login_flow",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_auth_flow",
+      "target": "docs_system_flows_session_lifecycle",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_rbac_helpers",
+      "target": "docs_user_flows_roles_matrix",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_settings_cache",
+      "target": "docs_project_documentation_get_security_settings",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_settings_cache",
+      "target": "docs_security_features_settings_config",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_audit_helper",
+      "target": "docs_project_documentation_append_only_audit",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_uuid_arg_bug",
+      "target": "docs_project_documentation_record_failed_attempt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_guide_infinite_redirect_fix",
+      "target": "docs_security_features_force_dialog",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/DEVELOPER_GUIDE.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

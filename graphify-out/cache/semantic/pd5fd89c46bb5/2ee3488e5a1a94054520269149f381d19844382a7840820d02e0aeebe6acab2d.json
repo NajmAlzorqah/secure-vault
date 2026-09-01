@@ -1,0 +1,174 @@
+{
+  "nodes": [
+    {
+      "id": "docs_developer_cryptography_guide_guide",
+      "label": "Developer Cryptography & Security Guide",
+      "file_type": "document",
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_cryptography_guide_dual_strategy",
+      "label": "Dual Cryptography Strategy (Irreversible Hash vs Reversible AEAD)",
+      "file_type": "rationale",
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_cryptography_guide_gcm_aead",
+      "label": "Why GCM/AEAD over CBC (Integrity + Authenticity)",
+      "file_type": "rationale",
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_cryptography_guide_iv_nonce_reuse",
+      "label": "IV/Nonce Reuse Vulnerability Warning",
+      "file_type": "rationale",
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_cryptography_guide_constant_time",
+      "label": "Constant-Time Comparison (Timing Attack Defense)",
+      "file_type": "rationale",
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_cryptography_guide_hybrid_revocation",
+      "label": "Hybrid JWT Revocation via sessionVersion DB Sync",
+      "file_type": "concept",
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_developer_cryptography_guide_testing_plan",
+      "label": "Cryptographic Verification Plan (Salt Uniqueness + Tamper Test)",
+      "file_type": "concept",
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_developer_cryptography_guide_guide",
+      "target": "readme_securevault",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_cryptography_guide_dual_strategy",
+      "target": "readme_aes_256_gcm",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_cryptography_guide_dual_strategy",
+      "target": "readme_bcrypt_cost_12",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_cryptography_guide_gcm_aead",
+      "target": "readme_aes_256_gcm",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_cryptography_guide_gcm_aead",
+      "target": "docs_project_documentation_encrypt",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_cryptography_guide_iv_nonce_reuse",
+      "target": "readme_aes_256_gcm",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_cryptography_guide_constant_time",
+      "target": "readme_bcrypt_cost_12",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_cryptography_guide_hybrid_revocation",
+      "target": "readme_jwt_session",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_developer_cryptography_guide_testing_plan",
+      "target": "docs_project_documentation_decrypt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/developer_cryptography_guide.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

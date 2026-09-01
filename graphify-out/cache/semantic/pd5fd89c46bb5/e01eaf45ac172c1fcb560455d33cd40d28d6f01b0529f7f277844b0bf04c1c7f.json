@@ -1,0 +1,247 @@
+{
+  "nodes": [
+    {
+      "id": "docs_project_documentation_report_doc",
+      "label": "SecureVault System Documentation Report",
+      "file_type": "document",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_problem_statement",
+      "label": "Problem Statement: Enterprise Credential Management Risks",
+      "file_type": "concept",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_related_works",
+      "label": "Related Works: Password Manager Paradigm Comparison",
+      "file_type": "concept",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_bitwarden",
+      "label": "Bitwarden / Vaultwarden (Client-Side Decryption Paradigm)",
+      "file_type": "concept",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_keepassxc",
+      "label": "KeePassXC (Single-User Desktop Paradigm)",
+      "file_type": "concept",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_hashicorp_vault",
+      "label": "HashiCorp Vault (Enterprise API Paradigm)",
+      "file_type": "concept",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_key_separation",
+      "label": "Cryptographic Key Separation Architecture",
+      "file_type": "rationale",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_plaintext_lifespan",
+      "label": "Restricted Plaintext Lifespan (Select Exclusion + 10s Hide + 30s Clipboard Clear)",
+      "file_type": "rationale",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_db_triggers",
+      "label": "DB-Enforced Audit Immutability Triggers (application_name=vault_app)",
+      "file_type": "concept",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_project_documentation_report_proxy_finding",
+      "label": "Audit Finding: src/proxy.ts Not Registered as Next.js Middleware",
+      "file_type": "concept",
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_project_documentation_report_doc",
+      "target": "readme_securevault",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_problem_statement",
+      "target": "readme_securevault",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_related_works",
+      "target": "docs_project_documentation_report_bitwarden",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_related_works",
+      "target": "docs_project_documentation_report_keepassxc",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_related_works",
+      "target": "docs_project_documentation_report_hashicorp_vault",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_bitwarden",
+      "target": "readme_securevault",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_keepassxc",
+      "target": "readme_securevault",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_hashicorp_vault",
+      "target": "readme_securevault",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_key_separation",
+      "target": "readme_aes_256_gcm",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_plaintext_lifespan",
+      "target": "docs_user_flows_reveal",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_db_triggers",
+      "target": "docs_project_documentation_append_only_audit",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_proxy_finding",
+      "target": "readme_middleware_proxy",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_project_documentation_report_proxy_finding",
+      "target": "docs_security_features_proxy_middleware",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/project_documentation_report.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

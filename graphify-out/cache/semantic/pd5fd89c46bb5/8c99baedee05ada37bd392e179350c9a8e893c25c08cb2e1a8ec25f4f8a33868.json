@@ -1,0 +1,81 @@
+{
+  "nodes": [
+    {
+      "id": "public_globe_icon",
+      "label": "Globe Icon (SVG)",
+      "file_type": "image",
+      "source_file": "public/globe.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_globe_svg_format",
+      "label": "SVG Vector Graphics Format",
+      "file_type": "concept",
+      "source_file": "public/globe.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_globe_global_web_symbol",
+      "label": "Globe / Global Web Symbolism",
+      "file_type": "concept",
+      "source_file": "public/globe.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_globe_nextjs_default_template_asset",
+      "label": "Next.js Default Template Asset (create-next-app)",
+      "file_type": "rationale",
+      "source_file": "public/globe.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_globe_icon",
+      "target": "public_globe_svg_format",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/globe.svg",
+      "source_location": "line 1 (xmlns=\"http://www.w3.org/2000/svg\")",
+      "weight": 1.0
+    },
+    {
+      "source": "public_globe_icon",
+      "target": "public_globe_global_web_symbol",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "public/globe.svg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_globe_icon",
+      "target": "public_globe_nextjs_default_template_asset",
+      "relation": "conceptually_related_to",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.3,
+      "source_file": "public/globe.svg",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

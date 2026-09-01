@@ -1,0 +1,394 @@
+{
+  "nodes": [
+    {
+      "id": "docs_system_flows_doc",
+      "label": "System Flow Documentation",
+      "file_type": "document",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_login_flow",
+      "label": "Login Server Action Flow",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_session_lifecycle",
+      "label": "Session Creation / Verification / Invalidation Flows",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_credential_encryption_flows",
+      "label": "Credential Encryption & Storage Flows",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_password_reset_flow",
+      "label": "Password Reset System Flow",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_progressive_delay_flow",
+      "label": "Progressive Delay & Account Lockout Flow",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_password_history_flow",
+      "label": "Password History & Reuse Prevention Flow",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_audit_logging_flow",
+      "label": "logAudit Flow (Never Throws)",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_reveal_api_flow",
+      "label": "POST /api/credentials/reveal Flow",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_settings_mgmt_flow",
+      "label": "Security Settings Retrieval & Cache Flow",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_rate_limit_impl",
+      "label": "checkRateLimit Sliding Window Implementation",
+      "file_type": "code",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_password_generator",
+      "label": "Client-Side Password Generator (CSPRNG + Fisher-Yates + zxcvbn)",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docs_system_flows_error_propagation",
+      "label": "Error Propagation Patterns by Layer",
+      "file_type": "concept",
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "docs_system_flows_doc",
+      "target": "readme_securevault",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_login_flow",
+      "target": "docs_system_flows_rate_limit_impl",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_login_flow",
+      "target": "docs_system_flows_progressive_delay_flow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_login_flow",
+      "target": "docs_system_flows_session_lifecycle",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_credential_encryption_flows",
+      "target": "docs_project_documentation_encrypt",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_credential_encryption_flows",
+      "target": "docs_project_documentation_credential_model",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_reveal_api_flow",
+      "target": "docs_project_documentation_decrypt",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_reveal_api_flow",
+      "target": "docs_project_documentation_csrf_origin_check",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_reveal_api_flow",
+      "target": "docs_system_flows_rate_limit_impl",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_password_reset_flow",
+      "target": "docs_system_flows_password_history_flow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_password_reset_flow",
+      "target": "docs_project_documentation_validate_reset_token",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_progressive_delay_flow",
+      "target": "docs_project_documentation_record_failed_attempt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_progressive_delay_flow",
+      "target": "docs_project_documentation_user_model",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_password_history_flow",
+      "target": "docs_project_documentation_is_password_reused",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_audit_logging_flow",
+      "target": "docs_project_documentation_append_only_audit",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_settings_mgmt_flow",
+      "target": "docs_developer_guide_settings_cache",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_error_propagation",
+      "target": "docs_system_flows_audit_logging_flow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_error_propagation",
+      "target": "docs_system_flows_rate_limit_impl",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_password_generator",
+      "target": "docs_user_flows_vault_crud",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_session_lifecycle",
+      "target": "docs_project_documentation_session_versioning",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docs_system_flows_password_generator",
+      "target": "docs_project_documentation_known_limitations",
+      "relation": "conceptually_related_to",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.3,
+      "source_file": "docs/SYSTEM_FLOWS.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "he_brute_force_defense_pipeline",
+      "label": "Brute-Force Defense Pipeline (Rate Limit, Progressive Delay, Lockout)",
+      "nodes": [
+        "docs_project_documentation_rate_limiting",
+        "docs_system_flows_rate_limit_impl",
+        "docs_system_flows_progressive_delay_flow",
+        "docs_project_documentation_record_failed_attempt",
+        "docs_project_documentation_failed_login_attempt_model",
+        "docs_system_flows_login_flow"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "docs/SYSTEM_FLOWS.md"
+    },
+    {
+      "id": "he_credential_encryption_path",
+      "label": "Credential Encryption & On-Demand Reveal Path",
+      "nodes": [
+        "docs_project_documentation_encrypt",
+        "docs_project_documentation_decrypt",
+        "docs_project_documentation_credential_model",
+        "docs_system_flows_reveal_api_flow",
+        "docs_project_documentation_csrf_origin_check",
+        "docs_developer_cryptography_guide_gcm_aead",
+        "docs_project_documentation_report_plaintext_lifespan"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/SYSTEM_FLOWS.md"
+    }
+  ]
+}
