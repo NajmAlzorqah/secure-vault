@@ -1,1 +1,14 @@
-graphify-out/graph.json merge=graphify
+# Normalize line endings for text files
+* text=auto eol=lf
+
+# Treat binary assets as binary (no diff, no CRLF mangling)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Lockfiles must not be merged line-by-line
+pnpm-lock.yaml -merge linguist-generated=true
