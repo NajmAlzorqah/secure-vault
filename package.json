@@ -1,13 +1,42 @@
 {
-  "name": "administration-system-for-managing-passwords",
+  "name": "secure-vault",
   "version": "0.1.0",
-  "private": true,
+  "description": "Self-hosted credential administration system with AES-256-GCM encryption at rest, append-only audit logging, RBAC, and a configurable password policy.",
+  "license": "MIT",
+  "author": "Najm Alzorqah",
+  "homepage": "https://github.com/NajmAlzorqah/secure-vault#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NajmAlzorqah/secure-vault.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NajmAlzorqah/secure-vault/issues"
+  },
+  "keywords": [
+    "password-manager",
+    "vault",
+    "credentials",
+    "secrets-management",
+    "encryption",
+    "aes-256-gcm",
+    "rbac",
+    "audit-log",
+    "security",
+    "nextjs",
+    "prisma",
+    "postgres"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@11.23.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "biome check --write",
     "format": "biome format --write",
+    "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:push": "prisma db push && tsx prisma/setup-triggers.ts",

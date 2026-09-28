@@ -48,12 +48,30 @@ Use the private disclosure process in [SECURITY.md](SECURITY.md).
 ## Before you push
 
 ```bash
-pnpm lint        # Biome check with auto-fix
 pnpm typecheck   # tsc --noEmit
 pnpm build       # next build
+pnpm lint        # biome check --write
 ```
 
-Biome will reformat files in place when you run `pnpm lint`. Commit the result.
+`pnpm typecheck` and `pnpm build` are expected to pass cleanly.
+
+`pnpm lint` is expected to report **no new findings**, but the tree is not
+clean today: it currently reports 14 errors and 9 warnings, mostly
+`noExplicitAny`, `a11y/noLabelWithoutControl`, and
+`a11y/noStaticElementInteractions` in `src/components/`. These predate the
+open-source release. Two good first issues:
+
+- Fixing a11y findings in `CredentialForm.tsx`, `UserForm.tsx`, and
+  `SettingsClient.tsx` (the click-handler and missing-label warnings)
+- Replacing the `any` casts in `CredentialForm.tsx` and `UserForm.tsx` with
+  real types from `@/generated/prisma/client`
+
+If your change touches one of those files, cleaning up the findings you
+already had there is welcome. Keep unrelated fixes in a separate commit.
+
+Biome reformats files in place when you run `pnpm lint`; commit the result.
+Because of the existing findings, `pnpm lint` exits non-zero even on a clean
+change — judge your own diff, not the exit code.
 
 ## Commit messages
 
