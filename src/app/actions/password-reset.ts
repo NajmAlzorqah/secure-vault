@@ -26,8 +26,11 @@ export interface PasswordResetState {
 /**
  * Requests a password reset for the given email.
  * Always returns a generic message to prevent email enumeration.
- * In production, this would send an email. For this project, the token
- * is logged to the audit trail and returned in the response for testing.
+ *
+ * WARNING: no mail transport is wired up, so the raw token is returned in the
+ * response so the flow can be completed. Anyone who knows a registered email
+ * can therefore mint a token and take over that account. Wire up email
+ * delivery and stop returning the token before using this in production.
  */
 export async function requestPasswordReset(
   email: string,
@@ -63,8 +66,7 @@ export async function requestPasswordReset(
     details: `Password reset requested for ${user.email}`,
   });
 
-  // In production: send email with reset link
-  // For this project: include token in response for testing
+  // TODO: send the reset link by email and stop returning the token.
   return {
     message: t("resetGeneric"),
     token,

@@ -1,8 +1,8 @@
 /**
  * In-memory sliding window rate limiter.
  *
- * For a university project, this is sufficient.
- * In production, use Redis-based rate limiting (e.g., @upstash/ratelimit).
+ * State is per-process and is not shared between instances. Behind more than
+ * one replica, use a shared store (e.g. Redis) or an upstream rate limiter.
  *
  * Security purpose: prevents brute-force attacks on login and
  * excessive password reveal requests.
