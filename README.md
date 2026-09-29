@@ -7,6 +7,49 @@ configurable password policy.
 Built with **Next.js 16** (App Router), **React 19**, **TypeScript**, **Prisma 7**,
 and **PostgreSQL 16**. Ships with full Arabic (RTL) and English localization.
 
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="SecureVault Dashboard Overview" width="100%" />
+</p>
+
+---
+
+## Screenshots & Interface
+
+Explore the primary administrative and security surfaces of SecureVault:
+
+### 1. Dashboard Overview
+Central operational overview featuring total encrypted credentials, registered administrators, system audit events, and real-time security activity stream.
+
+![Dashboard Overview](docs/screenshots/dashboard.png)
+
+---
+
+### 2. Credentials Vault
+Encrypted secrets management interface with real-time fuzzy search, category filter pills, secure password generation, and ephemeral reveal with automatic clipboard cleanup.
+
+![Credentials Vault](docs/screenshots/vault.png)
+
+---
+
+### 3. Security Posture & Policy Configuration
+Vault security health scoring, live policy compliance breakdown, and configurable runtime parameters for password complexity, lockout backoff, and expiration windows.
+
+![Security Posture and Policies](docs/screenshots/security.png)
+
+---
+
+### 4. User & Role Administration (RBAC)
+Granular administrator lifecycle management supporting `SUPER_ADMIN`, `EDITOR`, and `VIEWER` privilege tiers, status indicators, and administrative forced password rotation.
+
+![User and Role Administration](docs/screenshots/users.png)
+
+---
+
+### 5. Append-Only Audit Trail
+Database trigger-enforced immutable event tracking recording every sign-in, credential reveal, mutation, and policy update with actor email, IP address, and timestamp.
+
+![Immutable Audit Logs](docs/screenshots/audit-logs.png)
+
 ---
 
 ## Features
@@ -35,7 +78,7 @@ and **PostgreSQL 16**. Ships with full Arabic (RTL) and English localization.
 | Layer | Technology |
 |---|---|
 | Framework | Next.js 16.2.9 (App Router, Turbopack, React Compiler) |
-| UI | React 19, Tailwind CSS 4, shadcn/ui, Lucide icons |
+| UI | React 19, Tailwind CSS 4, Flip7 Design System, Lucide icons |
 | Forms | React Hook Form + Zod 4 |
 | i18n | next-intl (en / ar + RTL) |
 | ORM | Prisma 7.8 (`@prisma/adapter-pg`) |
