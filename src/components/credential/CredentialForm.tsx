@@ -11,6 +11,7 @@ import {
   updateCredential,
 } from "@/app/actions/credentials";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import {
   type CreateCredentialInput,
@@ -78,12 +79,7 @@ export function CredentialForm({
     mode: "onTouched",
   });
 
-  const titleValue = watch("title");
-  const usernameValue = watch("username");
   const passwordValue = watch("password");
-  const urlValue = watch("url");
-  const notesValue = watch("notes");
-  const categoryValue = watch("category");
 
   const onSubmit = (data: any) => {
     setServerState(undefined);
@@ -103,46 +99,51 @@ export function CredentialForm({
 
       const result = await action(undefined, formData);
       if (result) {
+        if (result.errors) {
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            if (messages && messages.length > 0) {
+              setError(field as any, {
+                type: "server",
+                message: messages[0],
+              });
+            }
+          });
+        }
         setServerState(result);
         if (result.success) {
           onSuccess?.();
           onClose();
-        } else if (result.errors) {
-          Object.entries(result.errors).forEach(([field, messages]) => {
-            setError(field as any, { type: "server", message: messages[0] });
-          });
         }
       }
     });
   };
 
-  // Close on escape
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 duration-150"
       onClick={onClose}
     >
       <div
-        className="bg-zinc-950 border border-zinc-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]"
+        className="bg-card border border-border/80 rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-card overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-          <h3 className="text-lg font-semibold text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
+          <h3 className="text-lg font-extrabold text-foreground font-heading">
             {mode === "create" ? t("addTitle") : t("editTitle")}
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-white p-1 rounded-md hover:bg-zinc-900 transition-colors"
+            className="text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-secondary transition-colors cursor-pointer"
             aria-label={tc("cancel")}
           >
             <X className="h-5 w-5" />
@@ -150,7 +151,7 @@ export function CredentialForm({
         </div>
 
         {serverState?.message && !serverState.success && (
-          <div className="mx-6 mt-4 p-3 rounded-lg text-sm bg-red-500/10 border border-red-500/20 text-red-400">
+          <div className="mx-6 mt-4 p-3.5 rounded-xl text-sm font-medium bg-coral/15 border border-coral/30 text-coral-dark dark:text-coral-light">
             {serverState.message}
           </div>
         )}
@@ -163,26 +164,19 @@ export function CredentialForm({
             <div className="space-y-1.5">
               <label
                 htmlFor="cred-title"
-                className="text-xs font-medium text-zinc-400"
+                className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
               >
                 {t("titleLabel")}
               </label>
-              <input
+              <Input
                 id="cred-title"
                 type="text"
                 placeholder={t("titlePlaceholder")}
-                className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                  errors.title
-                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                    : titleValue
-                      ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                      : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                }`}
                 disabled={isPending}
                 {...register("title")}
               />
               {errors.title && (
-                <p className="text-xs text-red-400 mt-1">
+                <p className="text-xs text-coral font-medium mt-1">
                   {errors.title.message as string}
                 </p>
               )}
@@ -191,26 +185,19 @@ export function CredentialForm({
             <div className="space-y-1.5">
               <label
                 htmlFor="cred-category"
-                className="text-xs font-medium text-zinc-400"
+                className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
               >
                 {t("categoryLabel")}
               </label>
-              <input
+              <Input
                 id="cred-category"
                 type="text"
                 placeholder={t("categoryPlaceholder")}
-                className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                  errors.category
-                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                    : categoryValue
-                      ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                      : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                }`}
                 disabled={isPending}
                 {...register("category")}
               />
               {errors.category && (
-                <p className="text-xs text-red-400 mt-1">
+                <p className="text-xs text-coral font-medium mt-1">
                   {errors.category.message as string}
                 </p>
               )}
@@ -220,27 +207,20 @@ export function CredentialForm({
           <div className="space-y-1.5">
             <label
               htmlFor="cred-username"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("usernameLabel")}
             </label>
-            <input
+            <Input
               id="cred-username"
               type="text"
               placeholder={t("usernamePlaceholder")}
               dir="ltr"
-              className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                errors.username
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                  : usernameValue
-                    ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-              }`}
               disabled={isPending}
               {...register("username")}
             />
             {errors.username && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.username.message as string}
               </p>
             )}
@@ -249,12 +229,12 @@ export function CredentialForm({
           <div className="space-y-1.5">
             <label
               htmlFor="cred-password"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("passwordLabel")}
             </label>
             <div className="relative">
-              <input
+              <Input
                 id="cred-password"
                 type={showPassword ? "text" : "password"}
                 placeholder={
@@ -262,20 +242,14 @@ export function CredentialForm({
                     ? t("passwordEditPlaceholder")
                     : t("passwordCreatePlaceholder")
                 }
-                className={`w-full bg-zinc-900 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                  errors.password
-                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                    : passwordValue
-                      ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                      : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                }`}
+                className="pe-10"
                 disabled={isPending}
                 {...register("password")}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white"
+                className="absolute end-3 top-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -285,7 +259,7 @@ export function CredentialForm({
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.password.message as string}
               </p>
             )}
@@ -310,27 +284,20 @@ export function CredentialForm({
           <div className="space-y-1.5">
             <label
               htmlFor="cred-url"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("urlLabel")}
             </label>
-            <input
+            <Input
               id="cred-url"
               type="text"
               placeholder={t("urlPlaceholder")}
               dir="ltr"
-              className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                errors.url
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                  : urlValue
-                    ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-              }`}
               disabled={isPending}
               {...register("url")}
             />
             {errors.url && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.url.message as string}
               </p>
             )}
@@ -339,7 +306,7 @@ export function CredentialForm({
           <div className="space-y-1.5">
             <label
               htmlFor="cred-notes"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("notesLabel")}
             </label>
@@ -347,36 +314,32 @@ export function CredentialForm({
               id="cred-notes"
               rows={3}
               placeholder={t("notesPlaceholder")}
-              className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 resize-y min-h-[80px] ${
-                errors.notes
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                  : notesValue
-                    ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-              }`}
+              className="w-full bg-input border border-border/80 rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-3 focus:ring-primary/30 focus:border-primary transition-all duration-150 shadow-xs resize-y min-h-[80px]"
               disabled={isPending}
               {...register("notes")}
             />
             {errors.notes && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.notes.message as string}
               </p>
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-dashed border-border/80">
             <Button
               type="button"
               onClick={onClose}
               variant="outline"
-              className="text-xs border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-white"
+              size="sm"
+              className="cursor-pointer font-semibold"
               disabled={isPending}
             >
               {tc("cancel")}
             </Button>
             <Button
               type="submit"
-              className="text-xs bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold"
+              size="sm"
+              className="cursor-pointer font-bold shadow-teal-glow"
               disabled={isPending}
             >
               {isPending

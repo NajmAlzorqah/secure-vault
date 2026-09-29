@@ -98,25 +98,26 @@ export function VaultClient({
       const res = await deleteCredential(deleteId);
       if (res.success) {
         setDeleteId(null);
-      } else {
-        alert(res.message || t("deleteFailed"));
       }
     });
   };
 
   return (
     <div className="space-y-6">
+      {/* Title & Add Button */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl font-extrabold text-foreground font-heading tracking-tight">
             {t("title")}
           </h1>
-          <p className="text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {t("subtitle")}
+          </p>
         </div>
         {isWriteAuthorized && (
           <Button
             onClick={() => setIsCreateOpen(true)}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
+            className="gap-2 font-bold shadow-teal-glow cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             {t("addCredential")}
@@ -124,21 +125,21 @@ export function VaultClient({
         )}
       </div>
 
-      <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-        <CardHeader className="pb-3">
+      <Card className="border-border/80 bg-card shadow-card">
+        <CardHeader className="pb-3 border-b border-dashed border-border/80">
           <CardTitle className="text-lg">{t("cardTitle")}</CardTitle>
           <CardDescription>{t("encryptedNote")}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-4">
           {/* Filters */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center">
             <div className="relative flex-1">
-              <Search className="absolute top-2.5 start-3 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute top-3 start-3.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder={t("searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="ps-9 bg-background/50 border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
+                className="ps-10"
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -146,11 +147,7 @@ export function VaultClient({
                 variant={selectedCategory === null ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(null)}
-                className={
-                  selectedCategory === null
-                    ? "bg-emerald-600 text-white"
-                    : "border-border/40 text-gray-300 hover:bg-background/80"
-                }
+                className="font-bold cursor-pointer"
               >
                 {tc("all")}
               </Button>
@@ -160,11 +157,7 @@ export function VaultClient({
                   variant={selectedCategory === cat ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(cat)}
-                  className={
-                    selectedCategory === cat
-                      ? "bg-emerald-600 text-white"
-                      : "border-border/40 text-gray-300 hover:bg-background/80"
-                  }
+                  className="font-bold cursor-pointer"
                 >
                   {cat}
                 </Button>
@@ -173,29 +166,29 @@ export function VaultClient({
           </div>
 
           {/* Vault Table */}
-          <div className="rounded-md border border-border/40 overflow-hidden bg-background/25">
+          <div className="rounded-2xl border border-border/80 overflow-hidden bg-card shadow-xs">
             <Table>
               <TableHeader className="bg-muted/40">
-                <TableRow className="hover:bg-transparent border-border/40">
-                  <TableHead className="text-gray-300 font-medium">
+                <TableRow className="hover:bg-transparent border-border/60">
+                  <TableHead className="font-bold text-foreground">
                     {t("colTitle")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colCategory")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colUsername")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colPassword")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colUrl")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colLastUpdated")}
                   </TableHead>
-                  <TableHead className="text-end text-gray-300 font-medium">
+                  <TableHead className="text-end font-bold text-foreground">
                     {tc("actions")}
                   </TableHead>
                 </TableRow>
@@ -205,7 +198,7 @@ export function VaultClient({
                   <TableRow>
                     <TableCell
                       colSpan={7}
-                      className="h-32 text-center text-muted-foreground"
+                      className="h-32 text-center text-muted-foreground font-medium"
                     >
                       {t("noResults")}
                     </TableCell>
@@ -214,9 +207,9 @@ export function VaultClient({
                   filteredCredentials.map((cred) => (
                     <TableRow
                       key={cred.id}
-                      className="hover:bg-muted/20 border-border/20"
+                      className="hover:bg-muted/30 border-border/40 transition-colors"
                     >
-                      <TableCell className="font-semibold text-white max-w-[240px]">
+                      <TableCell className="font-bold text-foreground max-w-[240px]">
                         <div className="truncate" title={cred.title}>
                           {cred.title}
                         </div>
@@ -228,10 +221,7 @@ export function VaultClient({
                       </TableCell>
                       <TableCell>
                         {cred.category ? (
-                          <Badge
-                            variant="secondary"
-                            className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          >
+                          <Badge variant="sky">
                             {cred.category}
                           </Badge>
                         ) : (
@@ -241,7 +231,7 @@ export function VaultClient({
                         )}
                       </TableCell>
                       <TableCell
-                        className="font-mono text-xs text-gray-300"
+                        className="font-mono text-xs text-foreground/80 font-medium"
                         dir="ltr"
                       >
                         {cred.username}
@@ -255,7 +245,7 @@ export function VaultClient({
                             href={cred.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1 hover:underline text-xs"
+                            className="text-primary hover:brightness-110 inline-flex items-center gap-1 hover:underline text-xs font-medium"
                           >
                             {cred.url.replace(/^https?:\/\//, "")}
                             <ExternalLink className="h-3 w-3" />
@@ -266,28 +256,30 @@ export function VaultClient({
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap font-medium">
                         {new Date(cred.updatedAt).toLocaleString(
                           intlLocaleFor(locale),
                         )}
                       </TableCell>
                       <TableCell className="text-end">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5">
                           {isWriteAuthorized && (
                             <>
                               <Button
                                 variant="ghost"
-                                size="icon"
+                                size="icon-sm"
                                 onClick={() => setEditCredential(cred)}
-                                className="h-8 w-8 text-gray-300 hover:text-emerald-400 hover:bg-emerald-500/10"
+                                className="text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full"
+                                title={tc("edit")}
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="ghost"
-                                size="icon"
+                                size="icon-sm"
                                 onClick={() => setDeleteId(cred.id)}
-                                className="h-8 w-8 text-gray-300 hover:text-red-400 hover:bg-red-500/10"
+                                className="text-muted-foreground hover:text-coral hover:bg-coral/10 rounded-full"
+                                title={tc("delete")}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -323,29 +315,28 @@ export function VaultClient({
         open={deleteId !== null}
         onOpenChange={(open) => !open && setDeleteId(null)}
       >
-        <DialogContent className="border-border/40 bg-zinc-950/95 backdrop-blur-xl text-white">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-500">
+            <DialogTitle className="flex items-center gap-2 text-coral">
               <ShieldAlert className="h-5 w-5" />
               {t("deleteTitle")}
             </DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogDescription>
               {t("deleteDescription")}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 sm:gap-2">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => setDeleteId(null)}
               disabled={isPending}
-              className="text-gray-400 hover:text-white"
             >
               {tc("cancel")}
             </Button>
             <Button
+              variant="destructive"
               onClick={handleDelete}
               disabled={isPending}
-              className="bg-red-600 hover:bg-red-500 text-white"
             >
               {isPending ? t("deleting") : t("permanentlyDelete")}
             </Button>

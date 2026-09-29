@@ -21,19 +21,24 @@ import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-const actionColors: Record<string, string> = {
-  LOGIN: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  LOGOUT: "bg-gray-500/10 text-gray-400 border-gray-500/20",
-  LOGIN_FAILED: "bg-red-500/10 text-red-400 border-red-500/20",
-  VIEW_PASSWORD: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  CREATE_CREDENTIAL: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  UPDATE_CREDENTIAL: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  DELETE_CREDENTIAL: "bg-red-500/10 text-red-400 border-red-500/20",
-  CREATE_USER: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  UPDATE_USER: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  DELETE_USER: "bg-red-500/10 text-red-400 border-red-500/20",
-  CHANGE_PASSWORD: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  EXPORT_CREDENTIALS: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+const actionBadgeVariant: Record<
+  string,
+  "default" | "gold" | "coral" | "sky" | "secondary"
+> = {
+  LOGIN: "default",
+  LOGOUT: "secondary",
+  LOGIN_FAILED: "coral",
+  VIEW_PASSWORD: "gold",
+  CREATE_CREDENTIAL: "default",
+  UPDATE_CREDENTIAL: "sky",
+  DELETE_CREDENTIAL: "coral",
+  CREATE_USER: "default",
+  UPDATE_USER: "sky",
+  DELETE_USER: "coral",
+  CHANGE_PASSWORD: "gold",
+  EXPORT_CREDENTIALS: "sky",
+  PASSWORD_RESET_REQUEST: "gold",
+  PASSWORD_RESET_COMPLETE: "default",
 };
 
 export default async function AuditPage() {
@@ -57,38 +62,38 @@ export default async function AuditPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
           {t("title")}
         </h1>
-        <p className="text-muted-foreground">{t("subtitle")}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{t("subtitle")}</p>
       </div>
 
-      <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-        <CardHeader className="pb-3">
+      <Card className="border-border/80 bg-card shadow-card">
+        <CardHeader className="pb-3 border-b border-dashed border-border/80">
           <CardTitle className="text-lg">{t("trailTitle")}</CardTitle>
           <CardDescription>{t("trailDescription")}</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border border-border/40 overflow-hidden bg-background/25">
+        <CardContent className="pt-4">
+          <div className="rounded-2xl border border-border/80 overflow-hidden bg-card shadow-xs">
             <Table>
               <TableHeader className="bg-muted/40">
-                <TableRow className="hover:bg-transparent border-border/40">
-                  <TableHead className="text-gray-300 font-medium">
+                <TableRow className="hover:bg-transparent border-border/60">
+                  <TableHead className="font-bold text-foreground">
                     {t("colTimestamp")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colUser")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colAction")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colDetails")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colIp")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colUserAgent")}
                   </TableHead>
                 </TableRow>
@@ -98,7 +103,7 @@ export default async function AuditPage() {
                   <TableRow>
                     <TableCell
                       colSpan={6}
-                      className="h-32 text-center text-muted-foreground"
+                      className="h-32 text-center text-muted-foreground font-medium"
                     >
                       {t("noLogs")}
                     </TableCell>
@@ -107,19 +112,21 @@ export default async function AuditPage() {
                   logs.map((log) => (
                     <TableRow
                       key={log.id}
-                      className="hover:bg-muted/20 border-border/20"
+                      className="hover:bg-muted/30 border-border/40 transition-colors"
                     >
-                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap font-medium">
                         {new Date(log.timestamp).toLocaleString(
                           intlLocaleFor(locale),
                         )}
                       </TableCell>
-                      <TableCell className="font-semibold text-white">
+                      <TableCell className="font-bold text-foreground">
                         {log.user ? (
                           <div>
-                            <p className="text-xs">{log.user.name}</p>
+                            <p className="text-xs font-bold text-foreground">
+                              {log.user.name}
+                            </p>
                             <p
-                              className="text-[10px] text-muted-foreground"
+                              className="text-[11px] text-muted-foreground font-medium"
                               dir="ltr"
                             >
                               {log.user.email}
@@ -133,12 +140,13 @@ export default async function AuditPage() {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          className={`border text-[10px] ${actionColors[log.action] ?? "bg-gray-500/10 text-gray-400 border-gray-500/20"}`}
+                          variant={actionBadgeVariant[log.action] ?? "secondary"}
+                          className="text-[10px]"
                         >
                           {ta(log.action)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-xs text-gray-300 max-w-[250px]">
+                      <TableCell className="text-xs text-foreground/80 font-medium max-w-[250px]">
                         {log.details ||
                           (log.target
                             ? t("credentialPrefix", {
@@ -146,7 +154,7 @@ export default async function AuditPage() {
                               })
                             : "—")}
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-gray-400">
+                      <TableCell className="font-mono text-xs text-muted-foreground font-medium">
                         {log.ipAddress || "—"}
                       </TableCell>
                       <TableCell

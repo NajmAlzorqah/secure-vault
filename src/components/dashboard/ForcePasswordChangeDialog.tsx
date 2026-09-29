@@ -7,6 +7,9 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { forceChangePassword, type UserState } from "@/app/actions/users";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PasswordRules } from "@/components/ui/PasswordRules";
 import type { SecuritySettingsData } from "@/lib/security-settings";
 import { getChangePasswordSchema } from "@/lib/validations";
 
@@ -54,9 +57,7 @@ export function ForcePasswordChangeDialog({
     mode: "onTouched",
   });
 
-  const currentPasswordValue = watch("currentPassword");
   const newPasswordValue = watch("newPassword");
-  const confirmPasswordValue = watch("confirmPassword");
 
   const onSubmit = (data: PasswordForm) => {
     setServerState(undefined);
@@ -77,60 +78,55 @@ export function ForcePasswordChangeDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-md mx-4 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs">
+      <div className="w-full max-w-md mx-4 bg-card border border-border/80 rounded-2xl shadow-card p-6 space-y-5 text-foreground">
         {/* Header */}
         <div className="text-center space-y-3">
-          <div className="inline-flex p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-            <ShieldAlert className="h-8 w-8 text-amber-400" />
+          <div className="inline-flex p-3 bg-gold/15 border border-gold/30 rounded-2xl shadow-accent-glow/20">
+            <ShieldAlert className="h-8 w-8 text-[#8F7000] dark:text-gold-light" />
           </div>
-          <h2 className="text-xl font-bold text-white">{t("title")}</h2>
-          <p className="text-sm text-zinc-400">{t("description")}</p>
+          <h2 className="text-xl font-extrabold text-foreground font-heading">
+            {t("title")}
+          </h2>
+          <p className="text-sm text-muted-foreground">{t("description")}</p>
         </div>
 
         {/* Server message */}
         {serverState?.message && (
           <div
-            className={`p-3 rounded-lg text-sm ${
+            className={`p-3.5 rounded-xl text-sm font-medium ${
               serverState.success
-                ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                : "bg-red-500/10 border border-red-500/20 text-red-400"
+                ? "bg-primary/15 border border-primary/30 text-teal-dark dark:text-teal-light"
+                : "bg-coral/15 border border-coral/30 text-coral-dark dark:text-coral-light"
             }`}
           >
             {serverState.message}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Current Password */}
           <div className="space-y-1.5">
             <label
               htmlFor="fp-currentPassword"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("currentPassword")}
             </label>
             <div className="relative">
-              <input
+              <Input
                 id="fp-currentPassword"
                 type={showCurrent ? "text" : "password"}
                 autoComplete="current-password"
                 placeholder={t("currentPlaceholder")}
-                className={`w-full bg-zinc-950 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                  errors.currentPassword
-                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                    : currentPasswordValue
-                      ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                      : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                }`}
+                className="pe-10"
                 disabled={isPending}
                 {...register("currentPassword")}
               />
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                className="absolute end-3 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
                 tabIndex={-1}
               >
                 {showCurrent ? (
@@ -141,7 +137,7 @@ export function ForcePasswordChangeDialog({
               </button>
             </div>
             {errors.currentPassword && (
-              <p className="text-xs text-red-400">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.currentPassword.message}
               </p>
             )}
@@ -151,30 +147,24 @@ export function ForcePasswordChangeDialog({
           <div className="space-y-1.5">
             <label
               htmlFor="fp-newPassword"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("newPassword")}
             </label>
             <div className="relative">
-              <input
+              <Input
                 id="fp-newPassword"
                 type={showNew ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder={t("newPlaceholder")}
-                className={`w-full bg-zinc-950 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                  errors.newPassword
-                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                    : newPasswordValue
-                      ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                      : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                }`}
+                className="pe-10"
                 disabled={isPending}
                 {...register("newPassword")}
               />
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                className="absolute end-3 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
                 tabIndex={-1}
               >
                 {showNew ? (
@@ -185,40 +175,39 @@ export function ForcePasswordChangeDialog({
               </button>
             </div>
             {errors.newPassword && (
-              <p className="text-xs text-red-400">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.newPassword.message}
               </p>
             )}
+            <PasswordRules
+              password={newPasswordValue}
+              showAlways={true}
+              settings={settings}
+            />
           </div>
 
           {/* Confirm Password */}
           <div className="space-y-1.5">
             <label
               htmlFor="fp-confirmPassword"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("confirmPassword")}
             </label>
             <div className="relative">
-              <input
+              <Input
                 id="fp-confirmPassword"
                 type={showConfirm ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder={t("confirmPlaceholder")}
-                className={`w-full bg-zinc-950 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                  errors.confirmPassword
-                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                    : confirmPasswordValue
-                      ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                      : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                }`}
+                className="pe-10"
                 disabled={isPending}
                 {...register("confirmPassword")}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                className="absolute end-3 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
                 tabIndex={-1}
               >
                 {showConfirm ? (
@@ -229,16 +218,16 @@ export function ForcePasswordChangeDialog({
               </button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-xs text-red-400">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.confirmPassword.message}
               </p>
             )}
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={isPending}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-600/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-11 text-base font-bold shadow-teal-glow cursor-pointer"
           >
             {isPending ? (
               <>
@@ -248,10 +237,12 @@ export function ForcePasswordChangeDialog({
             ) : (
               t("updatePassword")
             )}
-          </button>
+          </Button>
         </form>
 
-        <p className="text-center text-[10px] text-zinc-500">{t("footer")}</p>
+        <p className="text-center text-[11px] text-muted-foreground pt-2 border-t border-dashed border-border/80">
+          {t("footer")}
+        </p>
       </div>
     </div>
   );

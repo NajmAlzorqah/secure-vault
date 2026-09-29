@@ -38,23 +38,22 @@ export function LocaleSwitcher() {
         aria-label={t("label")}
         title={t("label")}
         disabled={isPending}
-        className="flex items-center gap-2 bg-transparent border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-400 hover:text-white cursor-pointer hover:border-zinc-700 hover:bg-zinc-800 transition-all disabled:opacity-50"
+        className="flex items-center gap-2 bg-card border border-border/80 rounded-full px-3.5 py-1.5 text-xs text-foreground hover:bg-secondary cursor-pointer transition-all disabled:opacity-50 font-semibold shadow-xs"
       >
-        <Languages className="h-3.5 w-3.5" />
+        <Languages className="h-3.5 w-3.5 text-primary" />
         <span>{localeNames[locale as Locale]}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-36 min-w-36 bg-zinc-900 border border-zinc-800 text-zinc-300 [&_*]:text-zinc-300 focus:bg-zinc-800 data-open:bg-zinc-900"
-      >
+      <DropdownMenuContent align="end" className="w-36 min-w-36">
         {locales.map((l) => (
           <DropdownMenuItem
             key={l}
             onClick={() => switchTo(l)}
-            className="cursor-pointer px-2 py-1.5 text-xs hover:bg-zinc-800 data-highlighted:bg-zinc-800"
+            className="cursor-pointer px-2.5 py-1.5 text-xs font-medium"
           >
             <Check
-              className={`h-3.5 w-3.5 ${l === locale ? "opacity-100" : "opacity-0"} ${l === locale ? "text-emerald-400" : ""}`}
+              className={`h-3.5 w-3.5 ${
+                l === locale ? "opacity-100 text-primary" : "opacity-0"
+              }`}
             />
             <span dir={l === "ar" ? "rtl" : "ltr"}>{localeNames[l]}</span>
           </DropdownMenuItem>

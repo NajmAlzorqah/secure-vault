@@ -1,7 +1,7 @@
 import type { SVGProps } from "react";
 
 export function Logo({
-  className = "h-6 w-6 text-emerald-400",
+  className = "h-6 w-6 text-primary",
   ...props
 }: SVGProps<SVGSVGElement>) {
   return (

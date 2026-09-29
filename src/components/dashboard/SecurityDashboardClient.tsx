@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { intlLocaleFor } from "@/i18n/config";
 
 interface SecurityDashboardClientProps {
@@ -41,11 +43,10 @@ interface SecurityDashboardClientProps {
   }>;
 }
 
-const actionColors: Record<string, string> = {
-  LOGIN_FAILED: "text-red-400 bg-red-500/10 border-red-500/20",
-  PASSWORD_RESET_REQUEST: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-  PASSWORD_RESET_COMPLETE:
-    "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+const actionBadgeVariant: Record<string, "coral" | "gold" | "default"> = {
+  LOGIN_FAILED: "coral",
+  PASSWORD_RESET_REQUEST: "gold",
+  PASSWORD_RESET_COMPLETE: "default",
 };
 
 export function SecurityDashboardClient({
@@ -63,52 +64,52 @@ export function SecurityDashboardClient({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
           {t("title")}
         </h1>
-        <p className="text-zinc-400">{t("subtitle")}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{t("subtitle")}</p>
       </div>
 
       {/* Security Score */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-lg">
-        <div className="flex items-center gap-4">
+      <div className="bg-card border border-border/80 rounded-2xl p-6 shadow-card">
+        <div className="flex items-center gap-5">
           <div
-            className={`flex items-center justify-center w-16 h-16 rounded-xl ${
+            className={`flex items-center justify-center w-16 h-16 rounded-2xl ${
               securityScore >= 80
-                ? "bg-emerald-500/10 border border-emerald-500/20"
+                ? "bg-primary/15 border border-primary/30 shadow-teal-glow/20"
                 : securityScore >= 50
-                  ? "bg-amber-500/10 border border-amber-500/20"
-                  : "bg-red-500/10 border border-red-500/20"
+                  ? "bg-gold/15 border border-gold/30 shadow-accent-glow/20"
+                  : "bg-coral/15 border border-coral/30 shadow-coral-glow/20"
             }`}
           >
             <ShieldCheck
               className={`h-8 w-8 ${
                 securityScore >= 80
-                  ? "text-emerald-400"
+                  ? "text-primary"
                   : securityScore >= 50
-                    ? "text-amber-400"
-                    : "text-red-400"
+                    ? "text-[#8F7000] dark:text-gold-light"
+                    : "text-coral"
               }`}
             />
           </div>
           <div>
-            <p className="text-xs text-zinc-400 font-medium">
+            <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
               {t("scoreLabel")}
             </p>
             <p
-              className={`text-3xl font-bold ${
+              className={`text-3xl font-extrabold font-heading ${
                 securityScore >= 80
-                  ? "text-emerald-400"
+                  ? "text-primary"
                   : securityScore >= 50
-                    ? "text-amber-400"
-                    : "text-red-400"
+                    ? "text-[#8F7000] dark:text-gold-light"
+                    : "text-coral"
               }`}
             >
               {securityScore}%
             </p>
           </div>
           <div className="ms-auto text-end">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted-foreground font-semibold">
               {securityScore >= 80
                 ? t("scoreStrong")
                 : securityScore >= 50
@@ -125,42 +126,41 @@ export function SecurityDashboardClient({
           icon={<Users className="h-5 w-5" />}
           label={t("totalUsers")}
           value={stats.totalUsers}
-          color="blue"
+          color="sky"
         />
         <StatCard
           icon={<ShieldOff className="h-5 w-5" />}
           label={t("lockedAccounts")}
           value={stats.lockedUsers}
-          color={stats.lockedUsers > 0 ? "red" : "emerald"}
+          color={stats.lockedUsers > 0 ? "coral" : "teal"}
         />
         <StatCard
           icon={<FileWarning className="h-5 w-5" />}
           label={t("failedLogins")}
           value={stats.recentFailedAttempts}
-          color={stats.recentFailedAttempts > 10 ? "red" : "amber"}
+          color={stats.recentFailedAttempts > 10 ? "coral" : "gold"}
         />
         <StatCard
           icon={<AlertTriangle className="h-5 w-5" />}
           label={t("expiredPasswords")}
           value={stats.usersWithExpiredPasswords}
-          color={stats.usersWithExpiredPasswords > 0 ? "red" : "emerald"}
+          color={stats.usersWithExpiredPasswords > 0 ? "coral" : "teal"}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Current Policy */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+        <div className="bg-card border border-border/80 rounded-2xl shadow-card overflow-hidden">
+          <div className="px-6 py-4 border-b border-dashed border-border/80 flex items-center justify-between">
+            <h2 className="text-lg font-extrabold text-foreground font-heading flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
               {t("policyTitle")}
             </h2>
-            <Link
-              href="/dashboard/security/settings"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg px-3 py-1.5 transition-colors"
-            >
-              <Settings className="h-3.5 w-3.5" />
-              {t("configure")}
+            <Link href="/dashboard/security/settings">
+              <Button variant="outline" size="sm" className="gap-1.5 font-bold cursor-pointer">
+                <Settings className="h-3.5 w-3.5" />
+                {t("configure")}
+              </Button>
             </Link>
           </div>
           <div className="p-6 space-y-3">
@@ -208,16 +208,16 @@ export function SecurityDashboardClient({
         </div>
 
         {/* Recent Security Events */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-zinc-800">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Clock className="h-5 w-5 text-amber-400" />
+        <div className="bg-card border border-border/80 rounded-2xl shadow-card overflow-hidden">
+          <div className="px-6 py-4 border-b border-dashed border-border/80">
+            <h2 className="text-lg font-extrabold text-foreground font-heading flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" />
               {t("eventsTitle")}
             </h2>
           </div>
           <div className="p-6">
             {recentSecurityEvents.length === 0 ? (
-              <p className="text-zinc-500 text-center py-8 text-sm">
+              <p className="text-muted-foreground text-center py-8 text-sm font-medium">
                 {t("noEvents")}
               </p>
             ) : (
@@ -225,21 +225,19 @@ export function SecurityDashboardClient({
                 {recentSecurityEvents.map((event) => (
                   <div
                     key={event.id}
-                    className="flex items-start gap-3 p-3 bg-zinc-950/40 border border-zinc-800/60 rounded-lg"
+                    className="flex items-start gap-3 p-3 bg-muted/30 border border-border/80 rounded-xl"
                   >
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border shrink-0 ${
-                        actionColors[event.action] ??
-                        "text-zinc-400 bg-zinc-800 border-zinc-700"
-                      }`}
+                    <Badge
+                      variant={actionBadgeVariant[event.action] ?? "default"}
+                      className="shrink-0"
                     >
                       {ta(event.action)}
-                    </span>
+                    </Badge>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs text-zinc-300 truncate">
+                      <p className="text-xs text-foreground font-medium truncate">
                         {event.details || t("noDetails")}
                       </p>
-                      <p className="text-[10px] text-zinc-500 mt-0.5">
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
                         {event.userEmail} •{" "}
                         {new Date(event.timestamp).toLocaleString(
                           intlLocaleFor(locale),
@@ -267,25 +265,25 @@ function StatCard({
   icon: React.ReactNode;
   label: string;
   value: number;
-  color: string;
+  color: "sky" | "coral" | "teal" | "gold";
 }) {
   const colorMap: Record<string, string> = {
-    blue: "bg-blue-500/10 border-blue-500/20 text-blue-400",
-    red: "bg-red-500/10 border-red-500/20 text-red-400",
-    emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
-    amber: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+    sky: "bg-sky-blue/15 border-sky-blue/30 text-[#1B6CA8] dark:text-sky-blue",
+    coral: "bg-coral/15 border-coral/30 text-coral",
+    teal: "bg-primary/15 border-primary/30 text-primary",
+    gold: "bg-gold/15 border-gold/30 text-[#8F7000] dark:text-gold-light",
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex items-center gap-3 shadow-lg">
+    <div className="bg-card border border-border/80 rounded-2xl p-4.5 flex items-center gap-3.5 shadow-card hover:scale-[1.01] transition-all duration-150">
       <div
-        className={`flex items-center justify-center w-10 h-10 rounded-lg border ${colorMap[color]}`}
+        className={`flex items-center justify-center w-11 h-11 rounded-xl border ${colorMap[color]}`}
       >
         {icon}
       </div>
       <div>
-        <p className="text-[10px] text-zinc-400 font-medium">{label}</p>
-        <p className="text-xl font-bold text-white">{value}</p>
+        <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">{label}</p>
+        <p className="text-2xl font-extrabold text-foreground font-heading">{value}</p>
       </div>
     </div>
   );
@@ -293,9 +291,9 @@ function StatCard({
 
 function PolicyRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-1.5 border-b border-zinc-800/50 last:border-0">
-      <span className="text-xs text-zinc-400">{label}</span>
-      <span className="text-xs font-medium text-white">{value}</span>
+    <div className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
+      <span className="text-xs text-muted-foreground font-medium">{label}</span>
+      <span className="text-xs font-bold text-foreground">{value}</span>
     </div>
   );
 }

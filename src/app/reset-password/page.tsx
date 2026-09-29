@@ -16,6 +16,8 @@ import { Suspense, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { resetPassword } from "@/app/actions/password-reset";
 import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/ui/logo";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import {
@@ -78,16 +80,16 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="relative min-h-screen flex items-center justify-center bg-zinc-950 px-4">
+      <div className="relative min-h-screen flex items-center justify-center bg-background text-foreground px-4">
         <div className="fixed top-4 end-4 z-50">
           <LocaleSwitcher />
         </div>
         <div className="relative z-10 w-full max-w-md">
-          <div className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 shadow-2xl text-center space-y-4">
-            <p className="text-red-400">{t("invalidLink")}</p>
+          <div className="bg-card border border-border/80 rounded-2xl p-8 shadow-card text-center space-y-4">
+            <p className="text-coral font-medium">{t("invalidLink")}</p>
             <Link
               href="/forgot-password"
-              className="text-sm text-emerald-400 hover:text-emerald-300"
+              className="text-sm text-primary hover:underline font-semibold"
             >
               {t("requestNewLink")}
             </Link>
@@ -98,33 +100,33 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-zinc-950 px-4 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.08),transparent_60%)] pointer-events-none" />
+    <div className="relative min-h-screen flex items-center justify-center bg-background text-foreground px-4 overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(43,168,162,0.14),transparent_65%)] pointer-events-none" />
 
       <div className="fixed top-4 end-4 z-50">
         <LocaleSwitcher />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 shadow-2xl space-y-6">
+        <div className="bg-card border border-border/80 rounded-2xl p-8 shadow-card space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
-            <div className="inline-flex p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-              <Logo className="h-8 w-8 text-emerald-400" />
+            <div className="inline-flex p-3 bg-primary/10 border border-primary/20 rounded-2xl shadow-teal-glow/20">
+              <Logo className="h-8 w-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
               {t("title")}
             </h1>
-            <p className="text-sm text-zinc-400">{t("subtitle")}</p>
+            <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
 
           {/* Message */}
           {serverState?.message && (
             <div
-              className={`p-3 rounded-lg text-sm ${
+              className={`p-3.5 rounded-xl text-sm font-medium ${
                 serverState.success
-                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                  : "bg-red-500/10 border border-red-500/20 text-red-400"
+                  ? "bg-primary/15 border border-primary/30 text-teal-dark dark:text-teal-light"
+                  : "bg-coral/15 border border-coral/30 text-coral-dark dark:text-coral-light"
               }`}
               role="alert"
             >
@@ -134,11 +136,10 @@ function ResetPasswordForm() {
 
           {/* Success — link to login */}
           {serverState?.success && (
-            <Link
-              href="/login"
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              {t("goToLogin")}
+            <Link href="/login" className="block w-full">
+              <Button className="w-full h-11 text-base font-bold shadow-teal-glow cursor-pointer">
+                {t("goToLogin")}
+              </Button>
             </Link>
           )}
 
@@ -151,28 +152,24 @@ function ResetPasswordForm() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="newPassword"
-                  className="text-xs font-medium text-zinc-400"
+                  className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
                 >
                   {t("newPassword")}
                 </label>
                 <div className="relative">
-                  <KeyRound className="absolute start-3 top-2.5 h-4 w-4 text-zinc-500 pointer-events-none" />
-                  <input
+                  <KeyRound className="absolute start-3.5 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
                     id="newPassword"
                     type={showNew ? "text" : "password"}
                     placeholder="••••••••"
-                    className={`w-full bg-zinc-950 border rounded-lg ps-10 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 disabled:opacity-50 transition-colors duration-200 ${
-                      errors.newPassword
-                        ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                        : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    }`}
+                    className="ps-10 pe-10"
                     disabled={isPending}
                     {...register("newPassword")}
                   />
                   <button
                     type="button"
                     onClick={() => setShowNew(!showNew)}
-                    className="absolute end-3 top-2.5 text-zinc-400 hover:text-white"
+                    className="absolute end-3 top-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   >
                     {showNew ? (
                       <EyeOff className="h-4 w-4" />
@@ -182,7 +179,7 @@ function ResetPasswordForm() {
                   </button>
                 </div>
                 {errors.newPassword && (
-                  <p className="text-xs text-red-400 mt-1">
+                  <p className="text-xs text-coral font-medium mt-1">
                     {errors.newPassword.message}
                   </p>
                 )}
@@ -193,28 +190,24 @@ function ResetPasswordForm() {
               <div className="space-y-1.5">
                 <label
                   htmlFor="confirmPassword"
-                  className="text-xs font-medium text-zinc-400"
+                  className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
                 >
                   {t("confirmNewPassword")}
                 </label>
                 <div className="relative">
-                  <KeyRound className="absolute start-3 top-2.5 h-4 w-4 text-zinc-500 pointer-events-none" />
-                  <input
+                  <KeyRound className="absolute start-3.5 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
                     id="confirmPassword"
                     type={showConfirm ? "text" : "password"}
                     placeholder="••••••••"
-                    className={`w-full bg-zinc-950 border rounded-lg ps-10 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 disabled:opacity-50 transition-colors duration-200 ${
-                      errors.confirmPassword
-                        ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                        : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    }`}
+                    className="ps-10 pe-10"
                     disabled={isPending}
                     {...register("confirmPassword")}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute end-3 top-2.5 text-zinc-400 hover:text-white"
+                    className="absolute end-3 top-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   >
                     {showConfirm ? (
                       <EyeOff className="h-4 w-4" />
@@ -224,16 +217,16 @@ function ResetPasswordForm() {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-xs text-red-400 mt-1">
+                  <p className="text-xs text-coral font-medium mt-1">
                     {errors.confirmPassword.message}
                   </p>
                 )}
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-600/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-11 text-base font-bold shadow-teal-glow cursor-pointer"
               >
                 {isPending ? (
                   <>
@@ -243,17 +236,17 @@ function ResetPasswordForm() {
                 ) : (
                   t("title")
                 )}
-              </button>
+              </Button>
             </form>
           )}
 
           {/* Back to login */}
-          <div className="text-center">
+          <div className="text-center pt-3 border-t border-dashed border-border/80">
             <Link
               href="/login"
-              className="text-xs text-zinc-400 hover:text-emerald-400 flex items-center justify-center gap-1 transition-colors"
+              className="text-xs text-muted-foreground hover:text-primary flex items-center justify-center gap-1.5 transition-colors font-medium"
             >
-              <BackIcon className="h-3 w-3" />
+              <BackIcon className="h-3.5 w-3.5" />
               {t("backToLogin")}
             </Link>
           </div>
@@ -267,8 +260,8 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-          <Loader2 className="h-8 w-8 text-emerald-400 animate-spin" />
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 text-primary animate-spin" />
         </div>
       }
     >

@@ -5,12 +5,20 @@ import { Eye, EyeOff, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { createUser, type UserState, updateUser } from "@/app/actions/users";
+import {
+  createUser,
+  updateUser,
+  type UserState,
+} from "@/app/actions/users";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import type { Role } from "@/generated/prisma/client";
 import type { SecuritySettingsData } from "@/lib/security-settings";
-import { getCreateUserSchema, getUpdateUserSchema } from "@/lib/validations";
+import {
+  getCreateUserSchema,
+  getUpdateUserSchema,
+} from "@/lib/validations";
 
 interface UserFormProps {
   mode: "create" | "edit";
@@ -33,6 +41,7 @@ export function UserForm({
   onSuccess,
 }: UserFormProps) {
   const t = useTranslations("userForm");
+  const tr = useTranslations("roles");
   const tv = useTranslations("validation");
   const action = mode === "create" ? createUser : updateUser;
   const [serverState, setServerState] = useState<UserState | undefined>(
@@ -52,8 +61,8 @@ export function UserForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
     watch,
+    formState: { errors },
     setError,
   } = useForm({
     resolver: zodResolver(schema),
@@ -61,16 +70,13 @@ export function UserForm({
       id: user?.id || "",
       name: user?.name || "",
       email: user?.email || "",
-      role: user?.role || "VIEWER",
       password: "",
+      role: user?.role || "VIEWER",
       forcePasswordChange: false,
     },
     mode: "onTouched",
   });
 
-  const nameValue = watch("name");
-  const emailValue = watch("email");
-  const roleValue = watch("role");
   const passwordValue = watch("password");
 
   const onSubmit = (data: any) => {
@@ -82,56 +88,61 @@ export function UserForm({
       }
       formData.append("name", data.name);
       formData.append("email", data.email);
-      formData.append("role", data.role);
       if (data.password) {
         formData.append("password", data.password);
       }
-      if (mode === "edit" && data.forcePasswordChange) {
-        formData.append("forcePasswordChange", "on");
+      formData.append("role", data.role);
+      if (data.forcePasswordChange) {
+        formData.append("forcePasswordChange", "true");
       }
 
       const result = await action(undefined, formData);
       if (result) {
+        if (result.errors) {
+          Object.entries(result.errors).forEach(([field, messages]) => {
+            if (messages && messages.length > 0) {
+              setError(field as any, {
+                type: "server",
+                message: messages[0],
+              });
+            }
+          });
+        }
         setServerState(result);
         if (result.success) {
           onSuccess?.();
           onClose();
-        } else if (result.errors) {
-          Object.entries(result.errors).forEach(([field, messages]) => {
-            setError(field as any, { type: "server", message: messages[0] });
-          });
         }
       }
     });
   };
 
-  // Close on escape
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 duration-150"
       onClick={onClose}
     >
       <div
-        className="bg-zinc-950 border border-zinc-800 rounded-xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]"
+        className="bg-card border border-border/80 rounded-2xl w-full max-w-md shadow-card flex flex-col max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-          <h3 className="text-lg font-semibold text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
+          <h3 className="text-lg font-extrabold text-foreground font-heading">
             {mode === "create" ? t("addTitle") : t("editTitle")}
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-400 hover:text-white p-1 rounded-md hover:bg-zinc-900 transition-colors"
+            className="text-muted-foreground hover:text-foreground p-1.5 rounded-full hover:bg-secondary transition-colors cursor-pointer"
             aria-label={t("cancel")}
           >
             <X className="h-5 w-5" />
@@ -139,7 +150,7 @@ export function UserForm({
         </div>
 
         {serverState?.message && !serverState.success && (
-          <div className="mx-6 mt-4 p-3 rounded-lg text-sm bg-red-500/10 border border-red-500/20 text-red-400">
+          <div className="mx-6 mt-4 p-3.5 rounded-xl text-sm font-medium bg-coral/15 border border-coral/30 text-coral-dark dark:text-coral-light">
             {serverState.message}
           </div>
         )}
@@ -151,26 +162,19 @@ export function UserForm({
           <div className="space-y-1.5">
             <label
               htmlFor="user-name"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("nameLabel")}
             </label>
-            <input
+            <Input
               id="user-name"
               type="text"
               placeholder={t("namePlaceholder")}
-              className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                errors.name
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                  : nameValue
-                    ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-              }`}
               disabled={isPending}
               {...register("name")}
             />
             {errors.name && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.name.message as string}
               </p>
             )}
@@ -179,27 +183,20 @@ export function UserForm({
           <div className="space-y-1.5">
             <label
               htmlFor="user-email"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("emailLabel")}
             </label>
-            <input
+            <Input
               id="user-email"
               type="email"
               placeholder={t("emailPlaceholder")}
               dir="ltr"
-              className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                errors.email
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                  : emailValue
-                    ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-              }`}
               disabled={isPending}
               {...register("email")}
             />
             {errors.email && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.email.message as string}
               </p>
             )}
@@ -208,28 +205,22 @@ export function UserForm({
           <div className="space-y-1.5">
             <label
               htmlFor="user-role"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("roleLabel")}
             </label>
             <select
               id="user-role"
-              className={`w-full bg-zinc-900 border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                errors.role
-                  ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                  : roleValue
-                    ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-              }`}
+              className="w-full bg-input border border-border/80 rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:ring-3 focus:ring-primary/30 focus:border-primary transition-all duration-150 shadow-xs cursor-pointer"
               disabled={isPending}
               {...register("role")}
             >
-              <option value="SUPER_ADMIN">{t("roleSuperAdmin")}</option>
-              <option value="EDITOR">{t("roleEditor")}</option>
-              <option value="VIEWER">{t("roleViewer")}</option>
+              <option value="SUPER_ADMIN">{tr("SUPER_ADMIN")}</option>
+              <option value="EDITOR">{tr("EDITOR")}</option>
+              <option value="VIEWER">{tr("VIEWER")}</option>
             </select>
             {errors.role && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.role.message as string}
               </p>
             )}
@@ -238,7 +229,7 @@ export function UserForm({
           <div className="space-y-1.5">
             <label
               htmlFor="user-password"
-              className="text-xs font-medium text-zinc-400"
+              className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
             >
               {t("passwordLabel")}{" "}
               {mode === "create"
@@ -246,24 +237,18 @@ export function UserForm({
                 : t("passwordOptionalHint")}
             </label>
             <div className="relative">
-              <input
+              <Input
                 id="user-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className={`w-full bg-zinc-900 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                  errors.password
-                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                    : passwordValue
-                      ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                      : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                }`}
+                className="pe-10"
                 disabled={isPending}
                 {...register("password")}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute end-3 top-2.5 text-zinc-400 hover:text-white"
+                className="absolute end-3 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -273,7 +258,7 @@ export function UserForm({
               </button>
             </div>
             {errors.password && (
-              <p className="text-xs text-red-400 mt-1">
+              <p className="text-xs text-coral font-medium mt-1">
                 {errors.password.message as string}
               </p>
             )}
@@ -285,35 +270,37 @@ export function UserForm({
 
           {/* Force Password Change (edit mode only) */}
           {mode === "edit" && (
-            <div className="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-muted/40 border border-border/80 rounded-xl">
               <input
                 id="forcePasswordChange"
                 type="checkbox"
-                className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-emerald-500 focus:ring-emerald-500/20 cursor-pointer"
+                className="h-4 w-4 rounded-md border-border text-primary focus:ring-primary/20 accent-primary cursor-pointer"
                 {...register("forcePasswordChange")}
               />
               <label
                 htmlFor="forcePasswordChange"
-                className="text-xs text-zinc-300 cursor-pointer select-none"
+                className="text-xs text-foreground font-semibold cursor-pointer select-none"
               >
                 {t("forceChangeLabel")}
               </label>
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-dashed border-border/80">
             <Button
               type="button"
               onClick={onClose}
               variant="outline"
-              className="text-xs border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-white"
+              size="sm"
+              className="font-semibold cursor-pointer"
               disabled={isPending}
             >
               {t("cancel")}
             </Button>
             <Button
               type="submit"
-              className="text-xs bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold"
+              size="sm"
+              className="font-bold shadow-teal-glow cursor-pointer"
               disabled={isPending}
             >
               {isPending

@@ -49,10 +49,13 @@ interface UsersClientProps {
   settings: SecuritySettingsData;
 }
 
-const roleColors: Record<Role, string> = {
-  SUPER_ADMIN: "bg-red-500/10 text-red-400 border-red-500/20",
-  EDITOR: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  VIEWER: "bg-gray-500/10 text-gray-400 border-gray-500/20",
+const roleBadgeVariants: Record<
+  Role,
+  "gold" | "default" | "sky"
+> = {
+  SUPER_ADMIN: "gold",
+  EDITOR: "default",
+  VIEWER: "sky",
 };
 
 export function UsersClient({
@@ -94,55 +97,55 @@ export function UsersClient({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
             {t("title")}
           </h1>
-          <p className="text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">{t("subtitle")}</p>
         </div>
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
+          className="gap-2 font-bold shadow-teal-glow cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           {t("addUser")}
         </Button>
       </div>
 
-      <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-        <CardHeader className="pb-3">
+      <Card className="border-border/80 bg-card shadow-card">
+        <CardHeader className="pb-3 border-b border-dashed border-border/80">
           <CardTitle className="text-lg">{t("cardTitle")}</CardTitle>
           <CardDescription>{t("cardDescription")}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute top-2.5 start-3 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute top-3 start-3.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="ps-9 bg-background/50 border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
+              className="ps-10"
             />
           </div>
 
           {/* Users Table */}
-          <div className="rounded-md border border-border/40 overflow-hidden bg-background/25">
+          <div className="rounded-2xl border border-border/80 overflow-hidden bg-card shadow-xs">
             <Table>
               <TableHeader className="bg-muted/40">
-                <TableRow className="hover:bg-transparent border-border/40">
-                  <TableHead className="text-gray-300 font-medium">
+                <TableRow className="hover:bg-transparent border-border/60">
+                  <TableHead className="font-bold text-foreground">
                     {t("colName")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colEmail")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colRole")}
                   </TableHead>
-                  <TableHead className="text-gray-300 font-medium">
+                  <TableHead className="font-bold text-foreground">
                     {t("colCreated")}
                   </TableHead>
-                  <TableHead className="text-end text-gray-300 font-medium">
+                  <TableHead className="text-end font-bold text-foreground">
                     {tc("actions")}
                   </TableHead>
                 </TableRow>
@@ -152,7 +155,7 @@ export function UsersClient({
                   <TableRow>
                     <TableCell
                       colSpan={5}
-                      className="h-32 text-center text-muted-foreground"
+                      className="h-32 text-center text-muted-foreground font-medium"
                     >
                       {t("noUsers")}
                     </TableCell>
@@ -161,50 +164,49 @@ export function UsersClient({
                   filteredUsers.map((user) => (
                     <TableRow
                       key={user.id}
-                      className="hover:bg-muted/20 border-border/20"
+                      className="hover:bg-muted/30 border-border/40 transition-colors"
                     >
-                      <TableCell className="font-semibold text-white">
-                        {user.name}
-                        {user.id === currentUserId && (
-                          <Badge className="ms-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-1 py-0 font-normal">
-                            {tc("you")}
-                          </Badge>
-                        )}
+                      <TableCell className="font-bold text-foreground">
+                        <div className="flex items-center gap-2">
+                          <span>{user.name}</span>
+                          {user.id === currentUserId && (
+                            <Badge variant="default" className="text-[10px] h-4.5 px-2">
+                              {tc("you")}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-gray-300" dir="ltr">
+                      <TableCell className="text-muted-foreground font-medium" dir="ltr">
                         {user.email}
                       </TableCell>
                       <TableCell>
-                        <Badge className={`border ${roleColors[user.role]}`}>
+                        <Badge variant={roleBadgeVariants[user.role]}>
                           {tr(user.role)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
+                      <TableCell className="text-xs text-muted-foreground font-medium">
                         {new Date(user.createdAt).toLocaleDateString(
                           intlLocaleFor(locale),
                         )}
                       </TableCell>
                       <TableCell className="text-end">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5">
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="icon-sm"
                             onClick={() => setEditUser(user)}
-                            className="h-8 w-8 text-gray-300 hover:text-emerald-400 hover:bg-emerald-500/10"
+                            className="text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full"
+                            title={tc("edit")}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="icon-sm"
                             disabled={user.id === currentUserId}
                             onClick={() => setDeleteId(user.id)}
-                            className="h-8 w-8 text-gray-300 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-30 disabled:pointer-events-none"
-                            title={
-                              user.id === currentUserId
-                                ? t("cannotDeleteSelf")
-                                : undefined
-                            }
+                            className="text-muted-foreground hover:text-coral hover:bg-coral/10 rounded-full disabled:opacity-30"
+                            title={tc("delete")}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -219,7 +221,7 @@ export function UsersClient({
         </CardContent>
       </Card>
 
-      {/* Create User Form Modal */}
+      {/* Create User Modal */}
       {isCreateOpen && (
         <UserForm
           mode="create"
@@ -228,7 +230,7 @@ export function UsersClient({
         />
       )}
 
-      {/* Edit User Form Modal */}
+      {/* Edit User Modal */}
       {editUser && (
         <UserForm
           mode="edit"
@@ -238,34 +240,33 @@ export function UsersClient({
         />
       )}
 
-      {/* Delete User Confirmation */}
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteId !== null}
         onOpenChange={(open) => !open && setDeleteId(null)}
       >
-        <DialogContent className="border-border/40 bg-zinc-950/95 backdrop-blur-xl text-white">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-500">
+            <DialogTitle className="flex items-center gap-2 text-coral">
               <ShieldAlert className="h-5 w-5" />
               {t("deleteTitle")}
             </DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogDescription>
               {t("deleteDescription")}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 sm:gap-2">
             <Button
-              variant="ghost"
+              variant="outline"
               onClick={() => setDeleteId(null)}
               disabled={isPending}
-              className="text-gray-400 hover:text-white"
             >
               {tc("cancel")}
             </Button>
             <Button
+              variant="destructive"
               onClick={handleDelete}
               disabled={isPending}
-              className="bg-red-600 hover:bg-red-500 text-white"
             >
               {isPending ? t("revoking") : t("revokeAccess")}
             </Button>

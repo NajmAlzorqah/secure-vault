@@ -64,43 +64,45 @@ export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
   }, [generated]);
 
   return (
-    <div className="border border-zinc-800 rounded-lg p-4 bg-zinc-900/40 space-y-3">
+    <div className="border border-border/80 rounded-2xl p-4 bg-muted/25 space-y-3.5 shadow-xs">
       <div className="flex items-center justify-between">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           {t("title")}
         </h4>
       </div>
 
       {/* Generated password display */}
       {generated && (
-        <div className="flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 gap-2">
+        <div className="flex items-center justify-between bg-card border border-border/80 rounded-xl p-3 gap-2 shadow-xs">
           <code
-            className="text-xs font-mono text-emerald-400 break-all select-all flex-1"
+            className="text-xs font-mono font-bold text-primary break-all select-all flex-1"
             dir="ltr"
           >
             {generated}
           </code>
-          <button
+          <Button
             type="button"
+            variant="gold"
+            size="icon-xs"
             onClick={copyToClipboard}
-            className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white cursor-pointer ms-2 transition-all shrink-0"
+            className="shrink-0"
             title={t("copy")}
           >
             {copied ? (
-              <Check className="h-3.5 w-3.5 text-emerald-400" />
+              <Check className="h-3.5 w-3.5" />
             ) : (
               <Copy className="h-3.5 w-3.5" />
             )}
-          </button>
+          </Button>
         </div>
       )}
 
       {/* Controls */}
       <div className="space-y-3">
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs text-zinc-400">
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-xs font-semibold text-muted-foreground">
             <span>{t("length")}</span>
-            <span className="font-semibold text-white">{length}</span>
+            <span className="font-extrabold text-foreground">{length}</span>
           </div>
           <input
             type="range"
@@ -109,44 +111,44 @@ export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
             value={length}
             onChange={(e) => setLength(Number(e.target.value))}
             dir="ltr"
-            className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
           />
         </div>
 
         <div className="grid grid-cols-4 gap-2">
-          <label className="flex items-center gap-1.5 text-[11px] text-zinc-400 cursor-pointer select-none">
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold cursor-pointer select-none">
             <input
               type="checkbox"
               checked={uppercase}
               onChange={(e) => setUppercase(e.target.checked)}
-              className="rounded border-zinc-800 text-emerald-600 focus:ring-emerald-500/20 bg-zinc-950 accent-emerald-500"
+              className="rounded-md border-border text-primary focus:ring-primary/20 accent-primary"
             />
             <span>ABC</span>
           </label>
-          <label className="flex items-center gap-1.5 text-[11px] text-zinc-400 cursor-pointer select-none">
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold cursor-pointer select-none">
             <input
               type="checkbox"
               checked={lowercase}
               onChange={(e) => setLowercase(e.target.checked)}
-              className="rounded border-zinc-800 text-emerald-600 focus:ring-emerald-500/20 bg-zinc-950 accent-emerald-500"
+              className="rounded-md border-border text-primary focus:ring-primary/20 accent-primary"
             />
             <span>abc</span>
           </label>
-          <label className="flex items-center gap-1.5 text-[11px] text-zinc-400 cursor-pointer select-none">
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold cursor-pointer select-none">
             <input
               type="checkbox"
               checked={numbers}
               onChange={(e) => setNumbers(e.target.checked)}
-              className="rounded border-zinc-800 text-emerald-600 focus:ring-emerald-500/20 bg-zinc-950 accent-emerald-500"
+              className="rounded-md border-border text-primary focus:ring-primary/20 accent-primary"
             />
             <span>123</span>
           </label>
-          <label className="flex items-center gap-1.5 text-[11px] text-zinc-400 cursor-pointer select-none">
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold cursor-pointer select-none">
             <input
               type="checkbox"
               checked={symbols}
               onChange={(e) => setSymbols(e.target.checked)}
-              className="rounded border-zinc-800 text-emerald-600 focus:ring-emerald-500/20 bg-zinc-950 accent-emerald-500"
+              className="rounded-md border-border text-primary focus:ring-primary/20 accent-primary"
             />
             <span>#$&</span>
           </label>
@@ -156,8 +158,9 @@ export function PasswordGenerator({ onGenerate }: PasswordGeneratorProps) {
       <Button
         type="button"
         onClick={generate}
-        variant="outline"
-        className="w-full text-xs font-semibold py-1.5 gap-2 border-zinc-800 text-white bg-zinc-900 hover:bg-zinc-800"
+        variant="default"
+        size="sm"
+        className="w-full font-bold py-2 gap-2 shadow-teal-glow cursor-pointer"
       >
         <RefreshCw className="h-3.5 w-3.5" />
         {t("generate")}

@@ -77,14 +77,18 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
 
   return (
     <aside
-      className={`flex flex-col bg-zinc-900 border-e border-zinc-800 transition-all duration-300 relative z-10 h-screen shrink-0 ${collapsed ? "w-[70px]" : "w-[260px]"}`}
+      className={`flex flex-col bg-card border-e border-border/80 transition-all duration-300 relative z-10 h-screen shrink-0 shadow-xs ${
+        collapsed ? "w-[72px]" : "w-[260px]"
+      }`}
     >
       {/* Logo Header */}
-      <div className="h-[70px] flex items-center justify-between px-4 border-b border-zinc-800/50">
+      <div className="h-[70px] flex items-center justify-between px-4 border-b border-border/60">
         <div className="flex items-center gap-3 overflow-hidden">
-          <Logo className="h-6 w-6 text-emerald-400 shrink-0" />
+          <div className="p-1.5 bg-primary/10 rounded-xl border border-primary/20 shrink-0">
+            <Logo className="h-5 w-5 text-primary shrink-0" />
+          </div>
           {!collapsed && (
-            <span className="font-bold text-base text-white tracking-tight whitespace-nowrap">
+            <span className="font-extrabold text-base text-foreground font-heading tracking-tight whitespace-nowrap">
               SecureVault
             </span>
           )}
@@ -92,23 +96,23 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
         <button
           type="button"
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center w-6 h-6 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white cursor-pointer transition-all"
+          className="flex items-center justify-center w-7 h-7 rounded-full bg-secondary border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-all"
           aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
         >
           {collapsed ? (
-            <ChevronRight className="h-3 w-3 rtl:-scale-x-100" />
+            <ChevronRight className="h-3.5 w-3.5 rtl:-scale-x-100" />
           ) : (
-            <ChevronLeft className="h-3 w-3 rtl:-scale-x-100" />
+            <ChevronLeft className="h-3.5 w-3.5 rtl:-scale-x-100" />
           )}
         </button>
       </div>
 
       {/* Force password change notice */}
       {forcePasswordChange && !collapsed && (
-        <div className="mx-3 mt-3 p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+        <div className="mx-3 mt-3 p-3 bg-gold/15 border border-gold/30 rounded-xl">
           <div className="flex items-center gap-2">
-            <Lock className="h-4 w-4 text-amber-400 shrink-0" />
-            <p className="text-[10px] text-amber-300 font-medium leading-tight">
+            <Lock className="h-4 w-4 text-[#8F7000] dark:text-gold-light shrink-0" />
+            <p className="text-[11px] text-[#8F7000] dark:text-gold-light font-bold leading-tight">
               {t("passwordChangeRequired")}
             </p>
           </div>
@@ -116,7 +120,7 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 flex flex-col gap-1 overflow-y-auto">
+      <nav className="flex-1 py-4 px-3 flex flex-col gap-1.5 overflow-y-auto">
         {filteredItems.map((item) => {
           const isActive = item.exact
             ? pathname === item.href
@@ -126,25 +130,25 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-full text-sm transition-all duration-150 active:scale-95 ${
                 isActive
-                  ? "text-white bg-emerald-500/10 border border-emerald-500/20"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800 border border-transparent"
+                  ? "text-primary-foreground bg-primary shadow-teal-glow/30 font-bold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary font-medium"
               }`}
               title={collapsed ? t(item.labelKey) : undefined}
             >
-              <item.icon className="h-5 w-5 shrink-0" />
+              <item.icon className="h-4.5 w-4.5 shrink-0" />
               {!collapsed && <span>{t(item.labelKey)}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-zinc-800/50 text-center">
+      {/* Footer with playful dashed divider */}
+      <div className="p-4 border-t border-dashed border-border/80 text-center">
         {!collapsed && (
           <p
-            className="text-[10px] text-zinc-500 font-medium whitespace-nowrap"
+            className="text-[11px] text-muted-foreground font-semibold whitespace-nowrap tracking-wide"
             dir="ltr"
           >
             v1.0.0 • AES-256-GCM

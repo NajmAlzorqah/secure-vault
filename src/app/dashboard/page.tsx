@@ -36,57 +36,57 @@ export default async function DashboardPage() {
     session.role === "SUPER_ADMIN" ? await db.auditLog.count() : null;
 
   const actionColors: Record<AuditAction, string> = {
-    LOGIN: "text-emerald-400",
-    LOGOUT: "text-zinc-400",
-    LOGIN_FAILED: "text-red-400",
-    VIEW_PASSWORD: "text-amber-400",
-    CREATE_CREDENTIAL: "text-blue-400",
-    UPDATE_CREDENTIAL: "text-purple-400",
-    DELETE_CREDENTIAL: "text-red-400",
-    CREATE_USER: "text-emerald-400",
-    UPDATE_USER: "text-purple-400",
-    DELETE_USER: "text-red-400",
-    CHANGE_PASSWORD: "text-amber-400",
-    EXPORT_CREDENTIALS: "text-blue-400",
-    PASSWORD_RESET_REQUEST: "text-amber-400",
-    PASSWORD_RESET_COMPLETE: "text-emerald-400",
+    LOGIN: "text-primary font-bold",
+    LOGOUT: "text-muted-foreground font-semibold",
+    LOGIN_FAILED: "text-coral font-bold",
+    VIEW_PASSWORD: "text-[#8F7000] dark:text-gold-light font-bold",
+    CREATE_CREDENTIAL: "text-primary font-bold",
+    UPDATE_CREDENTIAL: "text-[#1B6CA8] dark:text-sky-blue font-bold",
+    DELETE_CREDENTIAL: "text-coral font-bold",
+    CREATE_USER: "text-primary font-bold",
+    UPDATE_USER: "text-[#1B6CA8] dark:text-sky-blue font-bold",
+    DELETE_USER: "text-coral font-bold",
+    CHANGE_PASSWORD: "text-[#8F7000] dark:text-gold-light font-bold",
+    EXPORT_CREDENTIALS: "text-[#1B6CA8] dark:text-sky-blue font-bold",
+    PASSWORD_RESET_REQUEST: "text-[#8F7000] dark:text-gold-light font-bold",
+    PASSWORD_RESET_COMPLETE: "text-primary font-bold",
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
           {t("title")}
         </h1>
-        <p className="text-zinc-400">{t("subtitle")}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{t("subtitle")}</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex items-center gap-4 shadow-lg">
-          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-card border border-border/80 rounded-2xl p-5 flex items-center gap-4 shadow-card hover:scale-[1.01] transition-all duration-150">
+          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/15 border border-primary/30 text-primary shadow-teal-glow/20">
             <KeyRound className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs text-zinc-400 font-medium">
+            <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
               {t("storedCredentials")}
             </p>
-            <p className="text-2xl font-bold text-white mt-0.5">
+            <p className="text-2xl font-extrabold text-foreground mt-0.5 font-heading">
               {credentialCount}
             </p>
           </div>
         </div>
 
         {userCount !== null && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex items-center gap-4 shadow-lg">
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+          <div className="bg-card border border-border/80 rounded-2xl p-5 flex items-center gap-4 shadow-card hover:scale-[1.01] transition-all duration-150">
+            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gold/15 border border-gold/30 text-[#8F7000] dark:text-gold-light shadow-accent-glow/20">
               <Users className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs text-zinc-400 font-medium">
+              <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
                 {t("registeredUsers")}
               </p>
-              <p className="text-2xl font-bold text-white mt-0.5">
+              <p className="text-2xl font-extrabold text-foreground mt-0.5 font-heading">
                 {userCount}
               </p>
             </div>
@@ -94,30 +94,30 @@ export default async function DashboardPage() {
         )}
 
         {auditCount !== null && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex items-center gap-4 shadow-lg">
-            <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400">
+          <div className="bg-card border border-border/80 rounded-2xl p-5 flex items-center gap-4 shadow-card hover:scale-[1.01] transition-all duration-150">
+            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-sky-blue/15 border border-sky-blue/30 text-[#1B6CA8] dark:text-sky-blue shadow-sky-glow/20">
               <ClipboardList className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-xs text-zinc-400 font-medium">
+              <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
                 {t("auditEvents")}
               </p>
-              <p className="text-2xl font-bold text-white mt-0.5">
+              <p className="text-2xl font-extrabold text-foreground mt-0.5 font-heading">
                 {auditCount}
               </p>
             </div>
           </div>
         )}
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex items-center gap-4 shadow-lg">
-          <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-amber-500/10 border border-emerald-500/20 text-amber-400">
+        <div className="bg-card border border-border/80 rounded-2xl p-5 flex items-center gap-4 shadow-card hover:scale-[1.01] transition-all duration-150">
+          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/15 border border-primary/30 text-primary shadow-teal-glow/20">
             <Activity className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs text-zinc-400 font-medium">
+            <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
               {t("securityStatus")}
             </p>
-            <p className="text-lg font-bold text-emerald-400 mt-1">
+            <p className="text-lg font-extrabold text-primary mt-0.5 font-heading">
               {t("active")}
             </p>
           </div>
@@ -125,35 +125,33 @@ export default async function DashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-zinc-800">
-          <h2 className="text-lg font-semibold text-white">
+      <div className="bg-card border border-border/80 rounded-2xl shadow-card overflow-hidden">
+        <div className="px-6 py-4 border-b border-dashed border-border/80">
+          <h2 className="text-lg font-extrabold text-foreground font-heading">
             {t("recentActivity")}
           </h2>
         </div>
         <div className="p-6">
           {recentLogs.length === 0 ? (
-            <p className="text-zinc-500 text-center py-8">{t("noActivity")}</p>
+            <p className="text-muted-foreground text-center py-8 font-medium">{t("noActivity")}</p>
           ) : (
             <div className="space-y-6">
               {recentLogs.map((log) => (
                 <div key={log.id} className="flex gap-4 relative">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/30 border-2 border-emerald-500 mt-1 shrink-0 z-10" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-primary/20 border-2 border-primary mt-1 shrink-0 z-10" />
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-white">
-                      <span
-                        className={actionColors[log.action] ?? "text-zinc-300"}
-                      >
+                    <p className="text-sm font-bold text-foreground">
+                      <span className={actionColors[log.action] ?? "text-foreground"}>
                         {ta(log.action)}
                       </span>
                       {log.target && (
-                        <span className="text-zinc-400">
+                        <span className="text-muted-foreground font-medium">
                           {" "}
                           — {log.target.title}
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted-foreground font-medium">
                       {log.user?.email ?? tc("system")} •{" "}
                       {new Date(log.timestamp).toLocaleString(
                         intlLocaleFor(locale),

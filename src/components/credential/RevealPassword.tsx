@@ -3,6 +3,7 @@
 import { Check, Copy, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface RevealPasswordProps {
   credentialId: string;
@@ -78,48 +79,52 @@ export function RevealPassword({ credentialId }: RevealPasswordProps) {
   }, [password, t]);
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2.5">
       <div className="flex items-center gap-1.5">
         {/* Reveal/Hide button */}
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="icon-xs"
           onClick={reveal}
           disabled={loading}
-          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-full cursor-pointer"
           title={visible ? t("hideTitle") : t("showTitle")}
         >
           {loading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="h-3 w-3 animate-spin text-primary" />
           ) : visible ? (
-            <EyeOff className="h-3.5 w-3.5" />
+            <EyeOff className="h-3 w-3 text-muted-foreground" />
           ) : (
-            <Eye className="h-3.5 w-3.5" />
+            <Eye className="h-3 w-3 text-primary" />
           )}
-        </button>
+        </Button>
 
-        {/* Copy button */}
+        {/* Copy button in Gold CTA */}
         {password && (
-          <button
+          <Button
             type="button"
+            variant="gold"
+            size="icon-xs"
             onClick={copyToClipboard}
-            className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white cursor-pointer transition-all"
+            className="rounded-full cursor-pointer shadow-accent-glow/20"
             title={t("copyTitle")}
           >
             {copied ? (
-              <Check className="h-3.5 w-3.5 text-emerald-400" />
+              <Check className="h-3 w-3" />
             ) : (
-              <Copy className="h-3.5 w-3.5" />
+              <Copy className="h-3 w-3" />
             )}
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Masked or revealed password */}
-      <span className="font-mono text-xs text-zinc-300" dir="ltr">
+      <span className="font-mono text-xs font-bold text-foreground" dir="ltr">
         {visible && password ? password : "••••••••"}
       </span>
 
-      {error && <span className="text-red-400 text-[10px] ms-1">{error}</span>}
+      {error && <span className="text-coral text-[10px] font-medium ms-1">{error}</span>}
     </div>
   );
 }

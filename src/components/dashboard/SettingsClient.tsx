@@ -99,30 +99,45 @@ export function SettingsClient({
       segments = [t("durationDays", { count: ageInDays })];
     } else if (ageInDays < 365) {
       const months = Math.floor(ageInDays / 30);
-      const days = ageInDays % 30;
-      segments =
-        days > 0
-          ? [
-              t("durationMonths", { count: months }),
-              t("durationDays", { count: days }),
-            ]
-          : [t("durationMonths", { count: months })];
+      const remainingDays = ageInDays % 30;
+      segments = [t("durationMonths", { count: months })];
+      if (remainingDays > 0) {
+        segments.push(t("durationDays", { count: remainingDays }));
+      }
     } else {
       const years = Math.floor(ageInDays / 365);
-      const remainingDays = ageInDays % 365;
-      segments =
-        remainingDays > 0
-          ? [
-              t("durationYears", { count: years }),
-              t("durationDays", { count: remainingDays }),
-            ]
-          : [t("durationYears", { count: years })];
+      const remainingMonths = Math.floor((ageInDays % 365) / 30);
+      segments = [t("durationYears", { count: years })];
+      if (remainingMonths > 0) {
+        segments.push(t("durationMonths", { count: remainingMonths }));
+      }
     }
 
-    const joined = new Intl.ListFormat(locale, { type: "unit" }).format(
-      segments,
-    );
-    return t("agoCompound", { value: joined });
+    const joiner = locale === "ar" ? " و" : " and ";
+    return segments.join(joiner);
+  };
+
+  const handleExport = async () => {
+    try {
+      const res = await fetch("/api/credentials/export");
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error ?? t("exportFailed"));
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `credentials-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch {
+      alert(t("exportFailed"));
+    }
   };
 
   const onSubmit = (data: ChangePasswordInput) => {
@@ -135,95 +150,61 @@ export function SettingsClient({
 
       const result = await changePassword(undefined, formData);
       if (result) {
-        setServerState(result);
         if (result.errors) {
           Object.entries(result.errors).forEach(([field, messages]) => {
-            setError(field as any, { type: "server", message: messages[0] });
+            if (messages && messages.length > 0) {
+              setError(field as any, {
+                type: "server",
+                message: messages[0],
+              });
+            }
           });
         }
+        setServerState(result);
       }
     });
-  };
-
-  const handleExport = async () => {
-    try {
-      window.location.href = "/api/credentials/export";
-    } catch (error) {
-      alert(t("exportFailed") + error);
-    }
   };
 
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
           {t("title")}
         </h1>
-        <p className="text-muted-foreground">{t("subtitle")}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{t("subtitle")}</p>
       </div>
 
-      {/* Force password change banner */}
-      {forceChange && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3">
-          <div className="text-amber-400 mt-0.5">
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-amber-400">
-              {t("bannerTitle")}
-            </h3>
-            <p className="text-xs text-amber-200/70 mt-1">
-              {passwordAgeInfo.isExpired
-                ? t("bannerExpired")
-                : t("bannerAdmin")}
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Profile Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-emerald-400" />
+          {/* Profile Overview */}
+          <Card className="border-border/80 bg-card shadow-card">
+            <CardHeader className="pb-3 border-b border-dashed border-border/80">
+              <CardTitle className="flex items-center gap-2 text-foreground font-extrabold">
+                <ShieldCheck className="h-5 w-5 text-primary" />
                 {t("profileTitle")}
               </CardTitle>
               <CardDescription>{t("profileDescription")}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-4">
               <div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
                   {t("nameLabel")}
                 </p>
-                <p className="text-sm font-semibold text-white">{user.name}</p>
+                <p className="text-sm font-bold text-foreground mt-0.5">{user.name}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
                   {t("emailLabel")}
                 </p>
-                <p className="text-sm font-semibold text-white" dir="ltr">
+                <p className="text-sm font-bold text-foreground mt-0.5" dir="ltr">
                   {user.email}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
                   {t("privilegeLabel")}
                 </p>
-                <p className="text-sm font-semibold text-emerald-400">
+                <p className="text-sm font-extrabold text-primary mt-0.5">
                   {user.role === "SUPER_ADMIN"
                     ? t("roleSuperAdmin")
                     : user.role === "EDITOR"
@@ -232,31 +213,31 @@ export function SettingsClient({
                 </p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
                   {t("sessionLabel")}
                 </p>
-                <p className="text-sm text-gray-300">{t("sessionValue")}</p>
+                <p className="text-sm text-foreground/80 font-medium mt-0.5">{t("sessionValue")}</p>
               </div>
 
               {/* Password Age */}
-              <div className="pt-2 border-t border-zinc-800/50">
+              <div className="pt-3 border-t border-dashed border-border/60">
                 <div className="flex items-center gap-2 mb-1">
-                  <Clock className="h-3.5 w-3.5 text-zinc-400" />
-                  <p className="text-xs text-muted-foreground">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <p className="text-xs text-muted-foreground font-bold tracking-wide uppercase">
                     {t("passwordAgeLabel")}
                   </p>
                 </div>
                 {passwordAgeInfo.changedAt ? (
-                  <div className="space-y-1.5">
-                    <p className="text-sm text-white">
+                  <div className="space-y-2 mt-2">
+                    <p className="text-sm font-bold text-foreground">
                       {t("changed", {
                         value: formatAge(passwordAgeInfo.ageInDays),
                       })}
                     </p>
                     {passwordAgeInfo.expirationDays > 0 && (
-                      <div>
+                      <div className="space-y-1">
                         {passwordAgeInfo.isExpired ? (
-                          <p className="text-xs text-red-400 font-medium">
+                          <p className="text-xs text-coral font-bold">
                             {(passwordAgeInfo.daysUntilExpiry ?? 0) === 0
                               ? t("expired")
                               : t("expiredAgo", {
@@ -266,22 +247,22 @@ export function SettingsClient({
                                 })}
                           </p>
                         ) : (
-                          <p className="text-xs text-zinc-400">
+                          <p className="text-xs text-muted-foreground font-medium">
                             {t("expiresIn", {
                               count: passwordAgeInfo.daysUntilExpiry ?? 0,
                             })}
                           </p>
                         )}
                         {/* Progress bar */}
-                        <div className="h-1 bg-zinc-900 rounded-full overflow-hidden mt-1">
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all ${
                               passwordAgeInfo.isExpired
-                                ? "bg-red-500"
+                                ? "bg-coral shadow-coral-glow/50"
                                 : (passwordAgeInfo.daysUntilExpiry ?? 0) <
                                     passwordAgeInfo.expirationDays * 0.2
-                                  ? "bg-amber-500"
-                                  : "bg-emerald-500"
+                                  ? "bg-gold shadow-accent-glow/50"
+                                  : "bg-primary shadow-teal-glow/50"
                             }`}
                             style={{
                               width: `${Math.min(100, ((passwordAgeInfo.expirationDays - (passwordAgeInfo.daysUntilExpiry ?? 0)) / passwordAgeInfo.expirationDays) * 100)}%`,
@@ -292,7 +273,7 @@ export function SettingsClient({
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm text-amber-400">
+                  <p className="text-sm font-bold text-[#8F7000] dark:text-gold-light mt-1">
                     {t("noPasswordRecord")}
                   </p>
                 )}
@@ -302,21 +283,22 @@ export function SettingsClient({
 
           {/* Export backup (SUPER_ADMIN only) */}
           {isSuperAdmin && (
-            <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Download className="h-5 w-5 text-emerald-400" />
+            <Card className="border-border/80 bg-card shadow-card">
+              <CardHeader className="pb-3 border-b border-dashed border-border/80">
+                <CardTitle className="flex items-center gap-2 text-foreground font-extrabold">
+                  <Download className="h-5 w-5 text-primary" />
                   {t("backupTitle")}
                 </CardTitle>
                 <CardDescription>{t("backupDescription")}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-xs text-muted-foreground leading-relaxed">
+              <CardContent className="space-y-4 pt-4">
+                <p className="text-xs text-muted-foreground leading-relaxed font-medium">
                   {t("backupInfo")}
                 </p>
                 <Button
                   onClick={handleExport}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
+                  variant="gold"
+                  className="w-full h-11 text-base font-bold shadow-accent-glow cursor-pointer gap-2"
                 >
                   <Download className="h-4 w-4" />
                   {t("exportBackup")}
@@ -327,10 +309,10 @@ export function SettingsClient({
         </div>
 
         {/* Change Password */}
-        <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <KeyRound className="h-5 w-5 text-emerald-400" />
+        <Card className="border-border/80 bg-card shadow-card">
+          <CardHeader className="pb-3 border-b border-dashed border-border/80">
+            <CardTitle className="flex items-center gap-2 text-foreground font-extrabold">
+              <KeyRound className="h-5 w-5 text-primary" />
               {t("changePasswordTitle")}
             </CardTitle>
             <CardDescription>
@@ -339,37 +321,35 @@ export function SettingsClient({
                 : t("changePasswordOptional")}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             {serverState?.message && (
               <div
-                className={`p-3 rounded text-xs mb-4 ${serverState.success ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}
+                className={`p-3.5 rounded-xl text-xs font-medium mb-4 ${
+                  serverState.success
+                    ? "bg-primary/15 text-teal-dark dark:text-teal-light border border-primary/30"
+                    : "bg-coral/15 text-coral-dark dark:text-coral-light border border-coral/30"
+                }`}
               >
                 {serverState.message}
               </div>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-300">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground tracking-wide uppercase">
                   {t("currentPassword")}
                 </label>
                 <div className="relative">
                   <Input
                     type={showCurrent ? "text" : "password"}
-                    className={`pe-10 bg-background/50 border focus:ring-1 transition-colors duration-200 ${
-                      errors.currentPassword
-                        ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                        : currentPasswordValue
-                          ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                          : "border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    }`}
+                    className="pe-10"
                     disabled={isPending}
                     {...register("currentPassword")}
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrent(!showCurrent)}
-                    className="absolute end-3 top-2.5 text-gray-400 hover:text-white"
+                    className="absolute end-3 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     {showCurrent ? (
                       <EyeOff className="h-4 w-4" />
@@ -379,39 +359,33 @@ export function SettingsClient({
                   </button>
                 </div>
                 {errors.currentPassword && (
-                  <p className="text-xs text-red-400">
+                  <p className="text-xs text-coral font-medium mt-1">
                     {errors.currentPassword.message}
                   </p>
                 )}
                 {serverState?.errors?.currentPassword &&
                   !errors.currentPassword && (
-                    <p className="text-xs text-red-400">
+                    <p className="text-xs text-coral font-medium mt-1">
                       {serverState.errors.currentPassword[0]}
                     </p>
                   )}
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-300">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground tracking-wide uppercase">
                   {t("newPassword")}
                 </label>
                 <div className="relative">
                   <Input
                     type={showNew ? "text" : "password"}
-                    className={`pe-10 bg-background/50 border focus:ring-1 transition-colors duration-200 ${
-                      errors.newPassword
-                        ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                        : newPasswordValue
-                          ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                          : "border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    }`}
+                    className="pe-10"
                     disabled={isPending}
                     {...register("newPassword")}
                   />
                   <button
                     type="button"
                     onClick={() => setShowNew(!showNew)}
-                    className="absolute end-3 top-2.5 text-gray-400 hover:text-white"
+                    className="absolute end-3 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     {showNew ? (
                       <EyeOff className="h-4 w-4" />
@@ -421,12 +395,12 @@ export function SettingsClient({
                   </button>
                 </div>
                 {errors.newPassword && (
-                  <p className="text-xs text-red-400">
+                  <p className="text-xs text-coral font-medium mt-1">
                     {errors.newPassword.message}
                   </p>
                 )}
                 {serverState?.errors?.newPassword && !errors.newPassword && (
-                  <div className="text-xs text-red-400 space-y-1">
+                  <div className="text-xs text-coral font-medium space-y-1 mt-1">
                     {serverState.errors.newPassword.map((err, idx) => (
                       <p key={idx}>{err}</p>
                     ))}
@@ -435,27 +409,21 @@ export function SettingsClient({
                 <PasswordRules password={newPasswordValue} showAlways={true} />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-300">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-muted-foreground tracking-wide uppercase">
                   {t("confirmPassword")}
                 </label>
                 <div className="relative">
                   <Input
                     type={showConfirm ? "text" : "password"}
-                    className={`pe-10 bg-background/50 border focus:ring-1 transition-colors duration-200 ${
-                      errors.confirmPassword
-                        ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                        : confirmPasswordValue
-                          ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                          : "border-border/40 focus:border-emerald-500 focus:ring-emerald-500/20"
-                    }`}
+                    className="pe-10"
                     disabled={isPending}
                     {...register("confirmPassword")}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute end-3 top-2.5 text-gray-400 hover:text-white"
+                    className="absolute end-3 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     {showConfirm ? (
                       <EyeOff className="h-4 w-4" />
@@ -465,13 +433,13 @@ export function SettingsClient({
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-xs text-red-400">
+                  <p className="text-xs text-coral font-medium mt-1">
                     {errors.confirmPassword.message}
                   </p>
                 )}
                 {serverState?.errors?.confirmPassword &&
                   !errors.confirmPassword && (
-                    <p className="text-xs text-red-400">
+                    <p className="text-xs text-coral font-medium mt-1">
                       {serverState.errors.confirmPassword[0]}
                     </p>
                   )}
@@ -480,7 +448,7 @@ export function SettingsClient({
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white mt-2"
+                className="w-full h-11 text-base font-bold shadow-teal-glow cursor-pointer mt-2"
               >
                 {isPending ? (
                   <>
@@ -498,10 +466,10 @@ export function SettingsClient({
 
       {/* Password history notice */}
       {forceChange && (
-        <div className="text-center">
+        <div className="text-center pt-2">
           <Link
             href="/dashboard"
-            className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+            className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium"
           >
             {t("skipForNow")}
           </Link>

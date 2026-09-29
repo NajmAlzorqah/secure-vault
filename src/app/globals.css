@@ -5,9 +5,37 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Geist Sans", "IBM Plex Sans Arabic", sans-serif;
+  --font-sans: "Geist Sans", "IBM Plex Sans Arabic", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "Geist Mono", monospace;
-  --font-heading: "Geist Sans", "IBM Plex Sans Arabic", sans-serif;
+  --font-heading: "Geist Sans", "IBM Plex Sans Arabic", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Flip7 Core Palette */
+  --color-teal-primary: #2BA8A2;
+  --color-teal-light: #3CC4BD;
+  --color-teal-dark: #1E8C86;
+  --color-teal-bg: #E8F6F5;
+
+  --color-gold: #FFD23F;
+  --color-gold-light: #FFE47A;
+  --color-gold-dark: #E6B800;
+
+  --color-coral: #EF6C4A;
+  --color-coral-light: #FF8A6A;
+  --color-coral-dark: #D45233;
+
+  --color-cream: #FFF8E7;
+  --color-sky-blue: #5DADE2;
+
+  --color-surface-base: #EFF8F7;
+  --color-surface-card: #FFFFFF;
+
+  /* Flip7 Elevation Glows */
+  --shadow-card: 0 4px 20px rgba(43, 168, 162, 0.10);
+  --shadow-teal-glow: 0 4px 20px rgba(43, 168, 162, 0.35);
+  --shadow-coral-glow: 0 4px 20px rgba(239, 108, 74, 0.35);
+  --shadow-accent-glow: 0 4px 20px rgba(255, 210, 63, 0.40);
+  --shadow-sky-glow: 0 4px 16px rgba(93, 173, 226, 0.30);
+  --shadow-focus: 0 0 0 4px rgba(43, 168, 162, 0.25);
 }
 
 @theme inline {
@@ -53,62 +81,83 @@
 }
 
 :root {
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.6 0.15 140);
-  --primary-foreground: oklch(0.1 0 0);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.18 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.15 140);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.1 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.6 0.15 140);
-  --sidebar-primary-foreground: oklch(0.1 0 0);
-  --sidebar-accent: oklch(0.15 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.6 0.15 140);
+  --background: #EFF8F7;
+  --foreground: #103331;
+  --card: #FFFFFF;
+  --card-foreground: #103331;
+  --popover: #FFFFFF;
+  --popover-foreground: #103331;
+  --primary: #2BA8A2;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E8F6F5;
+  --secondary-foreground: #145C57;
+  --muted: #E0F2F1;
+  --muted-foreground: #4D7673;
+  --accent: #FFD23F;
+  --accent-foreground: #4A3A00;
+  --destructive: #EF6C4A;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(43, 168, 162, 0.22);
+  --input: #FFF8E7;
+  --ring: #2BA8A2;
+  --radius: 0.875rem;
+  --sidebar: #E8F6F5;
+  --sidebar-foreground: #103331;
+  --sidebar-primary: #2BA8A2;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #D7F0EE;
+  --sidebar-accent-foreground: #103331;
+  --sidebar-border: rgba(43, 168, 162, 0.22);
+  --sidebar-ring: #2BA8A2;
 }
 
 .dark {
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.6 0.15 140);
-  --primary-foreground: oklch(0.1 0 0);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.18 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.15 140);
-  --sidebar: oklch(0.1 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.6 0.15 140);
-  --sidebar-primary-foreground: oklch(0.1 0 0);
-  --sidebar-accent: oklch(0.15 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.6 0.15 140);
+  --background: #0B1B1A;
+  --foreground: #EFF8F7;
+  --card: #122A28;
+  --card-foreground: #EFF8F7;
+  --popover: #153230;
+  --popover-foreground: #EFF8F7;
+  --primary: #3CC4BD;
+  --primary-foreground: #081B1A;
+  --secondary: #193836;
+  --secondary-foreground: #D3F3F1;
+  --muted: #163331;
+  --muted-foreground: #7FA7A4;
+  --accent: #FFD23F;
+  --accent-foreground: #382C00;
+  --destructive: #FF8A6A;
+  --destructive-foreground: #330F07;
+  --border: rgba(60, 196, 189, 0.22);
+  --input: #173634;
+  --ring: #3CC4BD;
+  --sidebar: #0E2221;
+  --sidebar-foreground: #EFF8F7;
+  --sidebar-primary: #3CC4BD;
+  --sidebar-primary-foreground: #081B1A;
+  --sidebar-accent: #193836;
+  --sidebar-accent-foreground: #EFF8F7;
+  --sidebar-border: rgba(60, 196, 189, 0.22);
+  --sidebar-ring: #3CC4BD;
+}
+
+@utility shadow-card {
+  box-shadow: 0 4px 20px rgba(43, 168, 162, 0.10);
+}
+@utility shadow-teal-glow {
+  box-shadow: 0 4px 20px rgba(43, 168, 162, 0.35);
+}
+@utility shadow-coral-glow {
+  box-shadow: 0 4px 20px rgba(239, 108, 74, 0.35);
+}
+@utility shadow-accent-glow {
+  box-shadow: 0 4px 20px rgba(255, 210, 63, 0.40);
+}
+@utility shadow-sky-glow {
+  box-shadow: 0 4px 16px rgba(93, 173, 226, 0.30);
+}
+@utility shadow-focus {
+  box-shadow: 0 0 0 4px rgba(43, 168, 162, 0.25);
 }
 
 @layer base {

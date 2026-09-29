@@ -17,18 +17,13 @@ const strengthLabelKeys = [
 ] as const;
 
 const strengthColors = [
-  "bg-red-500",
-  "bg-orange-500",
-  "bg-amber-500",
-  "bg-emerald-400",
-  "bg-emerald-500",
+  "bg-coral",
+  "bg-coral-light",
+  "bg-gold",
+  "bg-teal-light",
+  "bg-primary shadow-teal-glow/50",
 ];
 
-/**
- * Maps English zxcvbn feedback strings (third-party library emits English only)
- * to message keys in the strength.warnings / strength.suggestions namespaces.
- * Unknown strings gracefully fall back to the original English.
- */
 const warningKeyByEnglish: Record<string, string> = {
   "Straight rows of keys are easy to guess": "straightRows",
   "Short keyboard patterns are easy to guess": "shortPatterns",
@@ -92,7 +87,6 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
 
   const { score } = result;
 
-  // Rebuild the crack-time display locally so it can be localized
   const rawSeconds =
     result.crack_times_seconds.offline_slow_hashing_1e4_per_second;
   const seconds = Number(rawSeconds);
@@ -123,45 +117,45 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
   const suggestionKey = suggestionKeyByEnglish[suggestionEnglish];
 
   return (
-    <div className="flex flex-col gap-1.5 mt-1 bg-zinc-950/20 p-2.5 border border-zinc-900 rounded-lg">
+    <div className="flex flex-col gap-2 mt-1 bg-card p-3 border border-border/80 rounded-xl shadow-xs">
       {/* Strength bar */}
-      <div className="flex gap-1 h-1.5" dir="ltr">
+      <div className="flex gap-1.5 h-2" dir="ltr">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className={`flex-1 rounded-sm transition-colors duration-300 ${
-              i <= score - 1 ? strengthColors[score] : "bg-zinc-800"
+            className={`flex-1 rounded-full transition-all duration-300 ${
+              i <= score - 1 ? strengthColors[score] : "bg-muted"
             }`}
           />
         ))}
       </div>
 
       {/* Labels */}
-      <div className="flex justify-between items-center text-[10px]">
+      <div className="flex justify-between items-center text-xs">
         <span
-          className={`font-semibold ${
+          className={`font-bold ${
             score <= 1
-              ? "text-red-400"
+              ? "text-coral"
               : score === 2
-                ? "text-amber-400"
-                : "text-emerald-400"
+                ? "text-[#8F7000] dark:text-gold-light"
+                : "text-primary"
           }`}
         >
           {t(strengthLabelKeys[score])}
         </span>
-        <span className="text-zinc-500">
+        <span className="text-muted-foreground font-medium text-[11px]">
           {t("crackTime", { time: timeText })}
         </span>
       </div>
 
       {/* Feedback */}
       {warningEnglish && (
-        <p className="text-[10px] text-amber-500 leading-tight">
+        <p className="text-[11px] text-coral font-medium leading-tight">
           ⚠ {warningKey ? tw(warningKey) : warningEnglish}
         </p>
       )}
       {suggestionEnglish && (
-        <p className="text-[10px] text-zinc-400 leading-tight">
+        <p className="text-[11px] text-muted-foreground leading-tight">
           💡 {suggestionKey ? ts(suggestionKey) : suggestionEnglish}
         </p>
       )}

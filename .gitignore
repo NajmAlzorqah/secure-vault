@@ -45,7 +45,12 @@ yarn-error.log*
 next-env.d.ts
 
 # local agent tooling / generated artifacts
+.agent/
 .agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
 .opencode/
 graphify-out/
 skills-lock.json

@@ -39,10 +39,10 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dir(locale)}
-      className={cn("dark", "font-sans")}
+      className="font-sans"
       suppressHydrationWarning
     >
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased bg-background text-foreground selection:bg-teal-primary/25 selection:text-foreground">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

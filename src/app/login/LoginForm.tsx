@@ -8,6 +8,8 @@ import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { type AuthState, login } from "@/app/actions/auth";
 import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/ui/logo";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import { getLoginSchema, type LoginInput } from "@/lib/validations";
@@ -55,31 +57,31 @@ export function LoginForm() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-zinc-950 px-4 overflow-hidden">
-      {/* Radial background gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.08),transparent_60%)] pointer-events-none" />
+    <div className="relative min-h-screen flex items-center justify-center bg-background text-foreground px-4 overflow-hidden">
+      {/* Radial Flip7 background gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(43,168,162,0.14),transparent_65%)] pointer-events-none" />
 
       <div className="fixed top-4 end-4 z-50">
         <LocaleSwitcher />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 shadow-2xl space-y-6">
+        <div className="bg-card border border-border/80 rounded-2xl p-8 shadow-card space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
-            <div className="inline-flex p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-              <Logo className="h-8 w-8 text-emerald-400" />
+            <div className="inline-flex p-3 bg-primary/10 border border-primary/20 rounded-2xl shadow-teal-glow/20">
+              <Logo className="h-8 w-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
               SecureVault
             </h1>
-            <p className="text-sm text-zinc-400">{t("subtitle")}</p>
+            <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
 
           {/* Error alert */}
           {serverState?.message && (
             <div
-              className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm"
+              className="bg-coral/15 border border-coral/30 text-coral-dark dark:text-coral-light p-3.5 rounded-xl text-sm font-medium"
               role="alert"
             >
               {serverState.message}
@@ -91,33 +93,26 @@ export function LoginForm() {
             <div className="space-y-1.5">
               <label
                 htmlFor="email"
-                className="text-xs font-medium text-zinc-400"
+                className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
               >
                 {t("emailAddress")}
               </label>
-              <input
+              <Input
                 id="email"
                 type="email"
                 autoComplete="email"
                 placeholder="najm@gmail.com"
                 dir="ltr"
-                className={`w-full bg-zinc-950 border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
-                  errors.email
-                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                    : emailValue
-                      ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                      : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                }`}
                 disabled={isPending}
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-xs text-red-400 mt-1">
+                <p className="text-xs text-coral font-medium mt-1">
                   {errors.email.message}
                 </p>
               )}
               {serverState?.errors?.email && !errors.email && (
-                <p className="text-xs text-red-400 mt-1">
+                <p className="text-xs text-coral font-medium mt-1">
                   {serverState.errors.email[0]}
                 </p>
               )}
@@ -126,30 +121,24 @@ export function LoginForm() {
             <div className="space-y-1.5">
               <label
                 htmlFor="password"
-                className="text-xs font-medium text-zinc-400"
+                className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
               >
                 {t("password")}
               </label>
               <div className="relative">
-                <input
+                <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className={`w-full bg-zinc-950 border rounded-lg ps-3 pe-10 py-2 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 ${
-                    errors.password
-                      ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
-                      : passwordValue
-                        ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
-                        : "border-zinc-800 focus:border-emerald-500 focus:ring-emerald-500/20"
-                  }`}
+                  className="pe-10"
                   disabled={isPending}
                   {...register("password")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute end-3 top-2.5 text-zinc-400 hover:text-white"
+                  className="absolute end-3 top-3 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   aria-label={
                     showPassword ? t("hidePassword") : t("showPassword")
                   }
@@ -162,12 +151,12 @@ export function LoginForm() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-red-400 mt-1">
+                <p className="text-xs text-coral font-medium mt-1">
                   {errors.password.message}
                 </p>
               )}
               {serverState?.errors?.password && !errors.password && (
-                <p className="text-xs text-red-400 mt-1">
+                <p className="text-xs text-coral font-medium mt-1">
                   {serverState.errors.password[0]}
                 </p>
               )}
@@ -178,16 +167,16 @@ export function LoginForm() {
             <div className="text-end">
               <Link
                 href="/forgot-password"
-                className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+                className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium"
               >
                 {t("forgotPassword")}
               </Link>
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={isPending}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-600/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-11 text-base font-bold shadow-teal-glow cursor-pointer"
             >
               {isPending ? (
                 <>
@@ -197,11 +186,11 @@ export function LoginForm() {
               ) : (
                 t("signIn")
               )}
-            </button>
+            </Button>
           </form>
 
-          {/* Footer */}
-          <div className="text-center text-[10px] text-zinc-500 space-y-1 pt-2">
+          {/* Footer with playful dashed divider */}
+          <div className="text-center text-[11px] text-muted-foreground space-y-1 pt-3 border-t border-dashed border-border/80">
             <p>{t("securedWith")}</p>
             <p>{t("loginMonitored")}</p>
           </div>

@@ -43,7 +43,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-950 text-white">
+    <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar
         role={user.role}
         forcePasswordChange={user.forcePasswordChange}

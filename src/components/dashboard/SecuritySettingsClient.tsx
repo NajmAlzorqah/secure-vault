@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import type { SecuritySettingsData } from "@/lib/security-settings";
 import { securitySettingsSchema } from "@/lib/validations";
 
@@ -88,19 +89,19 @@ export function SecuritySettingsClient({
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
           {t("title")}
         </h1>
-        <p className="text-zinc-400">{t("subtitle")}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{t("subtitle")}</p>
       </div>
 
       {/* Status message */}
       {serverState?.message && (
         <div
-          className={`p-3 rounded-lg text-sm ${
+          className={`p-3.5 rounded-xl text-sm font-medium ${
             serverState.success
-              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-              : "bg-red-500/10 border border-red-500/20 text-red-400"
+              ? "bg-primary/15 border border-primary/30 text-teal-dark dark:text-teal-light"
+              : "bg-coral/15 border border-coral/30 text-coral-dark dark:text-coral-light"
           }`}
         >
           {serverState.message}
@@ -109,15 +110,15 @@ export function SecuritySettingsClient({
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Password Policy */}
-        <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+        <Card className="border-border/80 bg-card shadow-card">
+          <CardHeader className="pb-3 border-b border-dashed border-border/80">
+            <CardTitle className="flex items-center gap-2 text-foreground font-extrabold">
+              <ShieldCheck className="h-5 w-5 text-primary" />
               {t("passwordPolicyTitle")}
             </CardTitle>
             <CardDescription>{t("passwordPolicyDescription")}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <NumberField
                 label={t("minLength")}
@@ -135,8 +136,8 @@ export function SecuritySettingsClient({
               />
             </div>
 
-            <div className="space-y-2">
-              <p className="text-xs text-zinc-400 font-medium">
+            <div className="space-y-2 pt-2 border-t border-dashed border-border/60">
+              <p className="text-xs font-bold text-muted-foreground tracking-wide uppercase">
                 {t("charRequirements")}
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -166,15 +167,15 @@ export function SecuritySettingsClient({
         </Card>
 
         {/* Lockout Policy */}
-        <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-amber-400" />
+        <Card className="border-border/80 bg-card shadow-card">
+          <CardHeader className="pb-3 border-b border-dashed border-border/80">
+            <CardTitle className="flex items-center gap-2 text-foreground font-extrabold">
+              <ShieldCheck className="h-5 w-5 text-[#8F7000] dark:text-gold-light" />
               {t("lockoutPolicyTitle")}
             </CardTitle>
             <CardDescription>{t("lockoutPolicyDescription")}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <NumberField
                 label={t("maxFailedAttempts")}
@@ -195,17 +196,17 @@ export function SecuritySettingsClient({
         </Card>
 
         {/* Expiration Policy */}
-        <Card className="border-border/40 bg-card/60 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-blue-400" />
+        <Card className="border-border/80 bg-card shadow-card">
+          <CardHeader className="pb-3 border-b border-dashed border-border/80">
+            <CardTitle className="flex items-center gap-2 text-foreground font-extrabold">
+              <ShieldCheck className="h-5 w-5 text-[#1B6CA8] dark:text-sky-blue" />
               {t("expirationPolicyTitle")}
             </CardTitle>
             <CardDescription>
               {t("expirationPolicyDescription")}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <NumberField
               label={t("expirationDays")}
               field="expirationDays"
@@ -217,11 +218,11 @@ export function SecuritySettingsClient({
         </Card>
 
         {/* Submit */}
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-2">
           <Button
             type="submit"
             disabled={isPending}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white gap-2"
+            className="gap-2 font-bold shadow-teal-glow cursor-pointer"
           >
             {isPending ? (
               <>
@@ -258,16 +259,15 @@ function NumberField({
     <div className="space-y-1.5">
       <label
         htmlFor={`field-${field}`}
-        className="text-xs font-medium text-zinc-400"
+        className="text-xs font-bold text-muted-foreground tracking-wide uppercase"
       >
         {label}
       </label>
-      <input
+      <Input
         id={`field-${field}`}
         type="number"
         min={min}
         max={max}
-        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:border-emerald-500 focus:ring-emerald-500/20 transition-colors"
         {...register(field as keyof SettingsForm, { valueAsNumber: true })}
       />
     </div>
@@ -284,13 +284,13 @@ function CheckboxField({
   register: ReturnType<typeof useForm<SettingsForm>>["register"];
 }) {
   return (
-    <label className="flex items-center gap-2 cursor-pointer">
+    <label className="flex items-center gap-2 cursor-pointer select-none">
       <input
         type="checkbox"
-        className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-emerald-500 focus:ring-emerald-500/20 cursor-pointer"
+        className="h-4 w-4 rounded-md border-border text-primary focus:ring-primary/20 accent-primary cursor-pointer"
         {...register(field as keyof SettingsForm)}
       />
-      <span className="text-xs text-zinc-300">{label}</span>
+      <span className="text-xs text-foreground font-semibold">{label}</span>
     </label>
   );
 }

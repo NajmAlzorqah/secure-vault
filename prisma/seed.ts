@@ -75,7 +75,7 @@ const team: TeamMember[] = [
     email: "najm@gmail.com",
     role: "SUPER_ADMIN",
     title: "Primary Administrator",
-    password: "Powernjm1*23",
+    password: "Security!Vault@Master*2026",
     joinedDaysAgo: 42,
     passwordChangedDaysAgo: 40,
   },
