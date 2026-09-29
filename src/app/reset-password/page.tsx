@@ -8,7 +8,6 @@ import {
   EyeOff,
   KeyRound,
   Loader2,
-  Shield,
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -17,6 +16,7 @@ import { Suspense, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { resetPassword } from "@/app/actions/password-reset";
 import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
+import { Logo } from "@/components/ui/logo";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import {
   getResetPasswordClientSchema,
@@ -110,7 +110,7 @@ function ResetPasswordForm() {
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-              <Shield className="h-8 w-8 text-emerald-400" />
+              <Logo className="h-8 w-8 text-emerald-400" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-white">
               {t("title")}

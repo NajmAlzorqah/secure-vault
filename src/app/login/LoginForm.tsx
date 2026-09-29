@@ -1,13 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { type AuthState, login } from "@/app/actions/auth";
 import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
+import { Logo } from "@/components/ui/logo";
 import { PasswordRules } from "@/components/ui/PasswordRules";
 import { getLoginSchema, type LoginInput } from "@/lib/validations";
 
@@ -67,7 +68,7 @@ export function LoginForm() {
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-              <Shield className="h-8 w-8 text-emerald-400" />
+              <Logo className="h-8 w-8 text-emerald-400" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-white">
               SecureVault

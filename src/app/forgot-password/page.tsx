@@ -1,13 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, ArrowRight, Loader2, Mail, Shield } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { requestPasswordReset } from "@/app/actions/password-reset";
 import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
+import { Logo } from "@/components/ui/logo";
 import {
   type ForgotPasswordInput,
   getForgotPasswordSchema,
@@ -65,7 +66,7 @@ export default function ForgotPasswordPage() {
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-              <Shield className="h-8 w-8 text-emerald-400" />
+              <Logo className="h-8 w-8 text-emerald-400" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-white">
               {t("title")}

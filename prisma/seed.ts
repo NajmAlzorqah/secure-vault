@@ -495,11 +495,16 @@ async function main() {
   const overrideName = process.env.SEED_ADMIN_NAME;
   const overridePassword = process.env.SEED_ADMIN_PASSWORD;
 
+  const emailAliases = new Map<string, string>();
+
   if (overrideEmail && resolvedTeam[0]) {
+    emailAliases.set(resolvedTeam[0].email, overrideEmail);
     resolvedTeam[0].email = overrideEmail;
     resolvedTeam[0].name = overrideName ?? resolvedTeam[0].name;
     if (overridePassword) resolvedTeam[0].password = overridePassword;
   }
+
+  const resolveEmail = (email: string): string => emailAliases.get(email) ?? email;
 
   console.log(`Seeding database for ${COMPANY}...`);
   console.log("Resetting tables for a deterministic seed...");
@@ -574,7 +579,7 @@ async function main() {
 
   const credIds = new Map<string, string>();
   for (const cred of credentials) {
-    const creatorId = requireId(userIds, cred.owner);
+    const creatorId = requireId(userIds, resolveEmail(cred.owner));
     const encrypted = encrypt(cred.password);
 
     const created = await prisma.credential.create({
@@ -616,7 +621,7 @@ async function main() {
 
   credentials.forEach((cred, index) => {
     auditSeeds.push({
-      email: cred.owner,
+      email: resolveEmail(cred.owner),
       action: "CREATE_CREDENTIAL",
       details: `Created credential '${cred.title}'`,
       targetTitle: cred.title,
@@ -822,7 +827,7 @@ async function main() {
   auditSeeds.sort((a, b) => a.when.getTime() - b.when.getTime());
 
   const auditRows = auditSeeds.map((entry) => ({
-    userId: entry.email ? (userIds.get(entry.email) ?? null) : null,
+    userId: entry.email ? (userIds.get(resolveEmail(entry.email)) ?? null) : null,
     action: entry.action,
     targetId: entry.targetTitle
       ? (credIds.get(entry.targetTitle) ?? null)

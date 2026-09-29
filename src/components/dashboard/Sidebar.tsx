@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { Logo } from "@/components/ui/logo";
 import type { Role } from "@/generated/prisma/client";
 
 interface SidebarProps {
@@ -81,7 +82,7 @@ export function Sidebar({ role, forcePasswordChange }: SidebarProps) {
       {/* Logo Header */}
       <div className="h-[70px] flex items-center justify-between px-4 border-b border-zinc-800/50">
         <div className="flex items-center gap-3 overflow-hidden">
-          <Shield className="h-6 w-6 text-emerald-400 shrink-0" />
+          <Logo className="h-6 w-6 text-emerald-400 shrink-0" />
           {!collapsed && (
             <span className="font-bold text-base text-white tracking-tight whitespace-nowrap">
               SecureVault
